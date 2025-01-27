@@ -7,20 +7,20 @@ import { AxiosError } from 'axios'
 import {
   DetectResultEntity,
   DetectResultEntityFactory,
-} from 'src/shared/domain/entities/face-recognition/detect-result.entity'
-import { ResultFaceRecognition } from 'src/shared/domain/entities/face-recognition/result-face-recognition.entity'
+} from 'src/shared/domain/entities/face-recognition/face-plus-plus/detect-result.entity'
+import { ResultFaceRecognition } from 'src/shared/domain/entities/face-recognition/face-plus-plus/result-face-recognition.entity'
 import {
   SearchFaceResultEntity,
   SearchFaceResultEntityFactory,
-} from 'src/shared/domain/entities/face-recognition/search-face-result.entity'
+} from 'src/shared/domain/entities/face-recognition/face-plus-plus/search-face-result.entity'
 import {
   SetUserIdResultEntity,
   SetUserIdResultFactory,
-} from 'src/shared/domain/entities/face-recognition/set-user-id-result.entity'
+} from 'src/shared/domain/entities/face-recognition/face-plus-plus/set-user-id-result.entity'
 import {
   AddFaceResultEntity,
   AddFaceResultEntityFactory,
-} from 'src/shared/domain/entities/face-recognition/add-face-result.entity'
+} from 'src/shared/domain/entities/face-recognition/face-plus-plus/add-face-result.entity'
 
 type ErrorFacePlusPlusService = {
   error_message: string

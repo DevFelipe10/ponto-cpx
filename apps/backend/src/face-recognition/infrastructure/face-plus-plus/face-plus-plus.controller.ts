@@ -1,7 +1,7 @@
 import { Controller, Post, Body, HttpStatus, Res } from '@nestjs/common'
 import { FastifyReply } from 'fastify'
 import { FacePlusPlusService } from './face-plus-plus.service'
-import { SearchFaceResultEntity } from 'src/shared/domain/entities/face-recognition/search-face-result.entity'
+import { SearchFaceResultEntity } from 'src/shared/domain/entities/face-recognition/face-plus-plus/search-face-result.entity'
 import { ResponseApi } from 'src/shared/domain/entities/response-api'
 
 @Controller('face-plus-plus')
