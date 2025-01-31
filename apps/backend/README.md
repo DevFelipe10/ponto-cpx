@@ -1,4 +1,4 @@
-# API Whatsapp
+# API Reconhecimento Facial
 
 API de Reconhecimento Facial
 
