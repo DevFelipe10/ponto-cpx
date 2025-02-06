@@ -5,12 +5,20 @@ import {
 } from '@nestjs/platform-fastify'
 import { AppModule } from './app.module'
 import multipart from '@fastify/multipart'
+import { ValidationPipe } from '@nestjs/common'
+import fastifyCookie from '@fastify/cookie'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
     AppModule,
     new FastifyAdapter(),
   )
+
+  app.register(fastifyCookie, {
+    secret: 'supersecret',
+  })
+
+  app.useGlobalPipes(new ValidationPipe())
 
   app.setGlobalPrefix('/api')
 

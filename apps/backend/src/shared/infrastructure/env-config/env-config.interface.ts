@@ -1,5 +1,17 @@
 export interface EnvConfig {
   getAppPort(): number
   getNodeEnv(): string
-  getApiFaceRecognition(): string
+
+  // MisterT
+  getMisterTBaseUrl(): string
+
+  // Face++
+  getFaceppBaseUrl(): string
+  getFaceppApiKey(): string
+  getFaceppApiSecret(): string
+  getFaceppListId(): string
+
+  // Azure
+  getAzureBaseUrl(): string
+  getAzureApiKey(): string
 }

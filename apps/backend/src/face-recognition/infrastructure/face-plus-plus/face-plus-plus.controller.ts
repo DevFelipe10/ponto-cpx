@@ -1,12 +1,17 @@
 import { Controller, Post, Body, HttpStatus, Res } from '@nestjs/common'
 import { FastifyReply } from 'fastify'
 import { FacePlusPlusService } from './face-plus-plus.service'
-import { SearchFaceResultEntity } from 'src/shared/domain/entities/face-recognition/face-plus-plus/search-face-result.entity'
 import { ResponseApi } from 'src/shared/domain/entities/response-api'
+import { HttpService } from '@nestjs/axios'
+import { EnvConfigService } from 'src/shared/infrastructure/env-config/env-config.service'
 
 @Controller('face-plus-plus')
 export class FacePlusPlusController {
-  constructor(private readonly facePlusPlusService: FacePlusPlusService) {}
+  constructor(
+    private readonly facePlusPlusService: FacePlusPlusService,
+    private readonly httpService: HttpService,
+    private readonly envConfigService: EnvConfigService,
+  ) {}
 
   // Cadastrar face no BD da API
   @Post('registerface')
@@ -18,7 +23,7 @@ export class FacePlusPlusController {
     try {
       // Detectar faces na imagem
       const detectResult =
-        await this.facePlusPlusService.detectFaces(imageBase64)
+        await this.facePlusPlusService.detectFace(imageBase64)
 
       if (detectResult.face_num !== 1) {
         throw 'Face not detected or multiple faces detected'
@@ -53,25 +58,23 @@ export class FacePlusPlusController {
 
   @Post('faceauthenticate')
   async faceAuthenticate(
-    @Body('image_base64') imageBase64: string,
-    @Body('userid') userid: string,
     @Res() res: FastifyReply,
+    @Body('image_base64') imageBase64: string,
+    @Body('userid') userId?: string | null,
   ) {
     try {
       // Detectar faces na imagem
       const detectResult =
-        await this.facePlusPlusService.detectFaces(imageBase64)
+        await this.facePlusPlusService.detectFace(imageBase64)
 
       if (detectResult.face_num !== 1) {
         throw 'Face not detected or multiple faces detected'
       }
 
       // Buscar imagem semelhante na API
-      const searchResult: SearchFaceResultEntity =
-        await this.facePlusPlusService.searchFace(
-          detectResult.faces[0].face_token,
-          // 'a3b58fd0079df1c0d436b87093e00c51',
-        )
+      const searchResult = await this.facePlusPlusService.searchFace(
+        detectResult.faces[0].face_token,
+      )
 
       if (searchResult.results.length <= 0) {
         throw 'No face encountered'
@@ -82,17 +85,20 @@ export class FacePlusPlusController {
         throw 'The face was not confidence'
       }
 
-      const isUseridEqual = searchResult.verifyUserId(userid)
+      // Caso userId seja passado no body faz a verificação com id da imagem
+      if (userId != undefined && userId != '') {
+        const isUseridEqual = searchResult.verifyUserId(userId)
 
-      if (isUseridEqual === false) {
-        throw `Userid not match Request: ${userid} - API: ${searchResult.results[0].user_id}`
+        if (isUseridEqual === false) {
+          throw `Userid not match Request: ${userId} - API: ${searchResult.results[0].user_id}`
+        }
       }
 
       return res.status(HttpStatus.OK).send(<ResponseApi>{
         message: 'Face authenticated successfully',
         data: {
-          // face_token: searchResult.results[0].face_token,
           confidence: searchResult.results[0].confidence,
+          userid: searchResult.results[0].user_id,
         },
         status: HttpStatus.OK,
       })

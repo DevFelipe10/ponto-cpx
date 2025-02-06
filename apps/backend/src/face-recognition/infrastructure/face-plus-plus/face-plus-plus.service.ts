@@ -39,14 +39,14 @@ export class FacePlusPlusService
   ) {}
 
   // async detectFaces(imageData: string): Promise<DetectResultPlusPlusEntity> {
-  async detectFaces(imageData: string): Promise<DetectResultEntity> {
+  async detectFace(imageData: string): Promise<DetectResultEntity> {
     const { data } = await firstValueFrom(
       this.httpService
         .post<DetectResultEntity>(
-          `${this.envConfigService.getApiFaceRecognition()}/detect`,
+          `${this.envConfigService.getFaceppBaseUrl()}/detect`,
           {
-            api_key: this.envConfigService.getApiKey(),
-            api_secret: this.envConfigService.getApiSecret(),
+            api_key: this.envConfigService.getFaceppApiKey(),
+            api_secret: this.envConfigService.getFaceppApiSecret(),
             image_base64: imageData,
           },
           {
@@ -70,11 +70,11 @@ export class FacePlusPlusService
     const { data } = await firstValueFrom(
       this.httpService
         .post<SearchFaceResultEntity>(
-          `${this.envConfigService.getApiFaceRecognition()}/search`,
+          `${this.envConfigService.getFaceppBaseUrl()}/search`,
           {
-            api_key: this.envConfigService.getApiKey(),
-            api_secret: this.envConfigService.getApiSecret(),
-            outer_id: this.envConfigService.getFaceListId(),
+            api_key: this.envConfigService.getFaceppApiKey(),
+            api_secret: this.envConfigService.getFaceppApiSecret(),
+            outer_id: this.envConfigService.getFaceppListId(),
             face_token: faceId,
             return_result_count: 1,
           },
@@ -102,10 +102,10 @@ export class FacePlusPlusService
     const { data } = await firstValueFrom(
       this.httpService
         .post<SetUserIdResultEntity>(
-          `${this.envConfigService.getApiFaceRecognition()}/face/setuserid`,
+          `${this.envConfigService.getFaceppBaseUrl()}/face/setuserid`,
           {
-            api_key: this.envConfigService.getApiKey(),
-            api_secret: this.envConfigService.getApiSecret(),
+            api_key: this.envConfigService.getFaceppApiKey(),
+            api_secret: this.envConfigService.getFaceppApiSecret(),
             user_id: userId,
             face_token: faceId,
           },
@@ -130,11 +130,11 @@ export class FacePlusPlusService
     const { data } = await firstValueFrom(
       this.httpService
         .post<AddFaceResultEntity>(
-          `${this.envConfigService.getApiFaceRecognition()}/faceset/addface`,
+          `${this.envConfigService.getFaceppBaseUrl()}/faceset/addface`,
           {
-            api_key: this.envConfigService.getApiKey(),
-            api_secret: this.envConfigService.getApiSecret(),
-            outer_id: this.envConfigService.getFaceListId(),
+            api_key: this.envConfigService.getFaceppApiKey(),
+            api_secret: this.envConfigService.getFaceppApiSecret(),
+            outer_id: this.envConfigService.getFaceppListId(),
             face_tokens: faceId,
           },
           {
