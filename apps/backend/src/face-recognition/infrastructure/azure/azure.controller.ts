@@ -6,8 +6,8 @@ import { ResponseApi } from 'src/shared/domain/entities/response-api'
 @Controller('azure')
 export class AzureController {
   constructor(private readonly azureService: AzureService) {}
-  @Post('/registerface')
-  async registerFace(
+  @Post('/faceregister')
+  async faceRegister(
     @Body('image_base64') imageBase64: string,
     @Body('userid') userid: string,
     @Res() res: FastifyReply,

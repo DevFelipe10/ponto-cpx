@@ -2,9 +2,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import RegistroPonto from "./RegistroPonto";
 import RegistroPontoAdmin from "./RegistroPontoAdmin";
-import AdicionarFaces from "./AdicionarFaces";
+import AdicionarFaces from "./pages/registro-ponto/AdicionarFaces";
+import RegistroPonto from "./pages/registro-ponto/RegistroPonto";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -1,20 +1,29 @@
 import { Module } from '@nestjs/common'
 import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
-import { ApiService } from './shared/infrastructure/api-client/api.service'
 import { HttpModule } from '@nestjs/axios'
 import { EnvConfigModule } from './shared/infrastructure/env-config/env-config.module'
 import { FacePlusPlusModule } from './face-recognition/infrastructure/face-plus-plus/face-plus-plus.module'
+import { AzureModule } from './face-recognition/infrastructure/azure/azure.module'
+import { MistertModule } from './face-recognition/infrastructure/mistert/mistert.module'
+import { AuthModule } from './shared/infrastructure/auth/auth.module'
+import { UsersModule } from './shared/infrastructure/users/users.module'
+import { OpencvModule } from './face-recognition/infrastructure/opencv/opencv.module'
+import { BaseHttpModule } from './shared/infrastructure/base-http/base-http.module'
 
 @Module({
   imports: [
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../..', 'frontend', 'dist'),
     }),
-    HttpModule,
     EnvConfigModule,
     FacePlusPlusModule,
+    AzureModule,
+    MistertModule,
+    AuthModule,
+    UsersModule,
+    OpencvModule,
+    BaseHttpModule,
   ],
-  providers: [ApiService],
 })
 export class AppModule {}

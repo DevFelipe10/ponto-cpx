@@ -55,4 +55,12 @@ export class EnvConfigService implements EnvConfig {
   getAzureApiKey(): string {
     return this.configService.get<string>('AZURE_API_KEY')
   }
+
+  // OPENCV
+  getOpencvBaseUrl(): string {
+    return this.configService.get<string>('OPENCV_BASE_URL')
+  }
+  getOpencvApiKey(): string {
+    return this.configService.get<string>('OPENCV_API_KEY')
+  }
 }

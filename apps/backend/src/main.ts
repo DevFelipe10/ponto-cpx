@@ -7,6 +7,8 @@ import { AppModule } from './app.module'
 import multipart from '@fastify/multipart'
 import { ValidationPipe } from '@nestjs/common'
 import fastifyCookie from '@fastify/cookie'
+import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface'
+import cors from '@fastify/cors'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -23,6 +25,34 @@ async function bootstrap() {
   app.setGlobalPrefix('/api')
 
   await app.register(multipart)
+
+  // // Configuração do CORS
+  // await app.register(cors, {
+  //   origin: (origin, callback) => {
+  //     const allowedOrigins = ['http://localhost:5173']
+
+  //     if (!origin) {
+  //       // Bloqueia requisições sem origem (Postman, cURL, etc.)
+  //       return callback(new Error('CORS blocked: Missing origin'), false)
+  //     }
+
+  //     if (allowedOrigins.includes(origin)) {
+  //       return callback(null, true)
+  //     } else {
+  //       return callback(new Error('CORS blocked: Origin not allowed'), false)
+  //     }
+  //   },
+  //   methods: ['GET', 'POST'],
+  //   allowedHeaders: ['Content-Type', 'Authorization', 'Origin'],
+  //   credentials: true, // Se precisar enviar cookies
+  // })
+
+  // app.enableCors(<CorsOptions>{
+  //   origin: 'http://compex.com.br', // URL da fonte de origem permitida
+  //   methods: ['POST'],
+  //   credentials: true, // Habilita o envio de cookies
+  //   allowedHeaders: ['Content-Type', 'Authorization'],
+  // })
 
   // app.useStaticAssets({
   //   root: join(__dirname, '../..', 'public'),

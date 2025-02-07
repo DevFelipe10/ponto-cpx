@@ -14,8 +14,8 @@ export class FacePlusPlusController {
   ) {}
 
   // Cadastrar face no BD da API
-  @Post('registerface')
-  async registerFace(
+  @Post('faceregister')
+  async faceRegister(
     @Body('image_base64') imageBase64: string,
     @Body('userid') userid: string,
     @Res() res: FastifyReply,

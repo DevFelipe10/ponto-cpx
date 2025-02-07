@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import styles from "./RegistroPonto.module.css";
+import styles from "./pages/registro-ponto/RegistroPonto.module.css";
 import logo from "./assets/logo.png";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-// import { useNavigate } from "react-router-dom";
+import Layout from "./Layout";
 
 type FormData = {
   registration: string;
@@ -66,49 +66,53 @@ const RegistroPontoAdmin: React.FC = () => {
   }, []);
 
   return (
-    <div>
-      <div className={styles.header}>
-        <img src={logo} className={styles.logo} />
-      </div>
-      <Card className="w-[887px] h-[500px] place-content-center rounded-[30px]">
-        <CardHeader className="items-center">
-          <CardTitle className="text-4xl">Acesso Administrador</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid gap-4 justify-center">
-            {/* Número de Registro */}
-            <div className="flex flex-col space-y-1.5 w-[507px]">
-              <Input
-                name="matricula"
-                value={formLogin.registration}
-                onChange={changeRegistration}
-                required
-                placeholder="Número de Registro"
-                className={styles.input}
-              />
-            </div>
-
-            {/* Senha */}
-            <div className={styles.input}>
-              <Input
-                name="password"
-                value={formLogin.password}
-                onChange={changePassword}
-                required
-                placeholder="Senha"
-                className={styles.input}
-              />
-            </div>
+    <Layout>
+      <div className={styles.divBody}>
+        <div>
+          <div className={styles.header}>
+            <img src={logo} className={styles.logo} />
           </div>
-        </CardContent>
-        <CardFooter className="flex justify-center">
-          <Button type="submit" onClick={login}>
-            Login
-          </Button>
-        </CardFooter>
-      </Card>
-      {/* )} */}
-    </div>
+          <Card className="w-[887px] h-[500px] place-content-center rounded-[30px]">
+            <CardHeader className="items-center">
+              <CardTitle className="text-4xl">Acesso Administrador</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 justify-center">
+                {/* Número de Registro */}
+                <div className="flex flex-col space-y-1.5 w-[507px]">
+                  <Input
+                    name="matricula"
+                    value={formLogin.registration}
+                    onChange={changeRegistration}
+                    required
+                    placeholder="Número de Registro"
+                    className={styles.input}
+                  />
+                </div>
+
+                {/* Senha */}
+                <div className={styles.input}>
+                  <Input
+                    name="password"
+                    value={formLogin.password}
+                    onChange={changePassword}
+                    required
+                    placeholder="Senha"
+                    className={styles.input}
+                  />
+                </div>
+              </div>
+            </CardContent>
+            <CardFooter className="flex justify-center">
+              <Button type="submit" onClick={login}>
+                Login
+              </Button>
+            </CardFooter>
+          </Card>
+          {/* )} */}
+        </div>
+      </div>
+    </Layout>
   );
 };
 
