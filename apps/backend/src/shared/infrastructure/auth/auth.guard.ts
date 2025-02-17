@@ -22,8 +22,6 @@ export class AuthGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    return true
-
     // use Public() em controllers que não precisam de autenticação
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
@@ -35,8 +33,6 @@ export class AuthGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<FastifyRequest>()
     const token = this.extractTokenFromCookie(request)
-
-    this.envConfigService.getJwtExpiresIn()
 
     if (!token) {
       throw new UnauthorizedException()

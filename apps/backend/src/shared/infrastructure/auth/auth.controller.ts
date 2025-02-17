@@ -30,13 +30,6 @@ export class AuthController {
       .send()
   }
 
-  @Post('logout')
-  async logout(@Res() res: FastifyReply) {
-    res.removeHeader('cookie')
-    return res.send({ message: 'Logout bem sucedido' })
-  }
-
-  // @UseGuards(AuthGuard)
   @Get('profile')
   getProfile(@Request() req) {
     return req.user

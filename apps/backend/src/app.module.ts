@@ -10,6 +10,7 @@ import { AuthModule } from './shared/infrastructure/auth/auth.module'
 import { UsersModule } from './shared/infrastructure/users/users.module'
 import { OpencvModule } from './face-recognition/infrastructure/opencv/opencv.module'
 import { BaseHttpModule } from './shared/infrastructure/base-http/base-http.module'
+import { RolesModule } from './shared/infrastructure/roles/roles.module'
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { BaseHttpModule } from './shared/infrastructure/base-http/base-http.modu
     UsersModule,
     OpencvModule,
     BaseHttpModule,
+    RolesModule,
   ],
 })
 export class AppModule {}

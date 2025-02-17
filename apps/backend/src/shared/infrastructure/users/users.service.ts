@@ -1,31 +1,34 @@
 import { Injectable } from '@nestjs/common'
-import { EnvConfigService } from '../env-config/env-config.service'
-
-export type User = {
-  userId: number
-  username: string
-  password: string
-}
+import { User } from 'src/shared/domain/entities/auth/user.auth'
+import { MistertService } from 'src/face-recognition/infrastructure/mistert/mistert.service'
+import { Role } from 'src/shared/domain/entities/roles/role.enum'
 
 @Injectable()
 export class UsersService {
-  private readonly user?: User
+  // private readonly listaUser: User[] = [
+  //   {
+  //     userId: 1,
+  //     username: 'admin',
+  //     password: 'admin',
+  //     role: Role.ADMIN,
+  //   },
+  //   {
+  //     userId: 3,
+  //     username: 'teste',
+  //     password: '123',
+  //     role: Role.REGISTRO_PONTO,
+  //   },
+  // ]
 
-  constructor(private readonly envConfigService: EnvConfigService) {
-    this.user = <User>{
-      userId: 1,
-      username: this.envConfigService.getAuthUsername(),
-      password: this.envConfigService.getAuthPassword(),
-    }
-  }
+  constructor(private readonly mistertService: MistertService) {}
 
-  getUser() {
-    return this.user
-  }
+  async findOne(username: string, password: string): Promise<User | undefined> {
+    // Buscar JSON de usuários no MisterT
+    const users = await this.mistertService.getUsersApi()
 
-  async findOne(username: string): Promise<User | undefined> {
-    if (username === this.user.username) {
-      return this.user
-    }
+    return users.find(
+      (user: User) => user.username === username && user.password === password,
+    )
+    // return this.listaUser[0]
   }
 }

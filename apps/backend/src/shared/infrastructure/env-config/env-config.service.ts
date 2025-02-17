@@ -13,14 +13,6 @@ export class EnvConfigService implements EnvConfig {
     return this.configService.get<string>('NODE_ENV')
   }
 
-  // AUTENTICAÇÃO
-  getAuthUsername(): string {
-    return this.configService.get<string>('AUTH_USERNAME')
-  }
-  getAuthPassword(): string {
-    return this.configService.get<string>('AUTH_PASSWORD')
-  }
-
   // JWT
   getJwtSecret(): string {
     return this.configService.get<string>('JWT_SECRET')
