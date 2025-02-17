@@ -55,4 +55,7 @@ export class EnvConfigService implements EnvConfig {
   getOpencvApiKey(): string {
     return this.configService.get<string>('OPENCV_API_KEY')
   }
+  getMinimumScoreSearch(): number {
+    return this.configService.get<number>('OPENCV_MIN_SCORE_FACE')
+  }
 }
