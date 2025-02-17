@@ -1,23 +1,17 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpStatus,
-  Post,
-  Req,
-  Res,
-} from '@nestjs/common'
+import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common'
 import { MistertService } from './mistert.service'
-import { FastifyReply, FastifyRequest } from 'fastify'
+import { FastifyReply } from 'fastify'
 import { ResponseApi } from 'src/shared/domain/entities/response-api'
 import { MarcacaoMisterT } from './interfaces'
-import { Public } from 'src/shared/infrastructure/auth/auth.guard'
+import { Roles } from 'src/shared/domain/entities/roles/roles.decorator'
+import { Role } from 'src/shared/domain/entities/roles/role.enum'
 
 @Controller('mistert')
 export class MistertController {
   constructor(private readonly mistertService: MistertService) {}
 
   @Get('getconfig')
+  @Roles(Role.REGISTRO_PONTO)
   async getconfig(@Res() res: FastifyReply) {
     try {
       const result = await this.mistertService.getConfig()
@@ -41,6 +35,7 @@ export class MistertController {
   }
 
   @Post('pointregister')
+  @Roles(Role.REGISTRO_PONTO)
   async pointRegisterMisterT(
     @Body() marcacao: MarcacaoMisterT,
     @Res() res: FastifyReply,

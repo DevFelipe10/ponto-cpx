@@ -10,6 +10,7 @@ import {
   ResultGetConfig,
   ResultPointRegister,
 } from './interfaces'
+import { User } from 'src/shared/domain/entities/auth/user.auth'
 
 @Injectable()
 export class MistertService {
@@ -64,6 +65,43 @@ export class MistertService {
       resultMisterT = JSON.parse(dataUtf8) as ResultGetConfig
     } catch (e) {
       throw 'An error happened when trying to parse the JSON - is not valid JSON - getConfigMisterT()'
+    }
+
+    return resultMisterT
+  }
+
+  async getUsersApi(): Promise<User[]> {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<string>(`${this.envConfigService.getMisterTBaseUrl()}`, {
+          // Definir tipo binary e evita conversões incorretas
+          responseType: 'arraybuffer',
+          responseEncoding: 'utf-8',
+          params: {
+            SS: 'c4z6h3x4s3b8p9k3t2x3s6g5q8g3t4',
+            NH: '-1',
+          },
+        })
+        .pipe(
+          catchError(error => {
+            console.log(error.response)
+            throw 'An error happened when trying to detect the face'
+          }),
+        ),
+    )
+
+    let resultMisterT: User[] = []
+
+    try {
+      // Converter binary para latin1 removendo � da string
+      const dataLatin1 = Buffer.from(data, 'binary')
+
+      // Decode de latin1 to utf8 format
+      const dataUtf8 = iconv.decode(dataLatin1, 'latin1')
+
+      resultMisterT = JSON.parse(dataUtf8) as User[]
+    } catch (e) {
+      throw 'An error happened when trying to parse the JSON - is not valid JSON - getUsersApi()'
     }
 
     return resultMisterT

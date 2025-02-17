@@ -1,12 +1,13 @@
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 import { MistertController } from './mistert.controller'
-import { EnvConfigService } from 'src/shared/infrastructure/env-config/env-config.service'
 import { MistertService } from './mistert.service'
+import { EnvConfigModule } from 'src/shared/infrastructure/env-config/env-config.module'
 
 @Module({
-  imports: [HttpModule],
+  imports: [EnvConfigModule, HttpModule],
   controllers: [MistertController],
-  providers: [EnvConfigService, MistertService],
+  providers: [MistertService],
+  exports: [MistertService],
 })
 export class MistertModule {}
