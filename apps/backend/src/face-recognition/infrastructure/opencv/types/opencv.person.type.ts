@@ -28,10 +28,10 @@ export type PersonCreateOpencv = {
   collections: string[] | null
   date_of_birth: string | null
   gender: GenderEnumOpencv | null
-  id: string
+  id: string | null
   images: string[]
   is_bulk_insert: false | null
-  name: string | null
+  name: string
   nationality: string | null
   notes: string | null
 }

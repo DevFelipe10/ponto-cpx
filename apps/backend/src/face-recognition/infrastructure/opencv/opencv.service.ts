@@ -14,4 +14,8 @@ export class OpencvService {
   //     'X-API-KEY': this.apiKey,
   //   })
   // }
+
+  wrapBase64(base64: Base64URLString) {
+    return base64.split(',')[1] as Base64URLString
+  }
 }

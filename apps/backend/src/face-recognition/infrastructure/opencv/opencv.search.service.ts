@@ -8,23 +8,30 @@ import {
   SearchDetectOpencv,
   SearchPersonOpencv,
 } from './types/opencv.search.type'
+import { OpencvService } from './opencv.service'
 
 @Injectable()
 export class OpencvSearchService {
   private opencvBaseUrl: string
-  private min_score = 0.8
+  private min_score: number
 
   constructor(
     private readonly envConfigService: EnvConfigService,
     private readonly httpService: OpencvHttpService,
+    private readonly opencvService: OpencvService,
   ) {
     this.opencvBaseUrl = this.envConfigService.getOpencvBaseUrl()
+    this.min_score = this.envConfigService.getMinimumScoreSearch()
   }
 
-  async detect(image: string) {
+  async detect<R = SearchDetectOpencv[], E = ErrorResponseOpencv>(
+    image: string,
+  ) {
     const { data } = await this.httpService
-      .post<SearchDetectOpencv[]>(`${this.opencvBaseUrl}/detect`, { image })
-      .catch((e: AxiosError<ErrorResponseOpencv>) => {
+      .post<R>(`${this.opencvBaseUrl}/detect`, {
+        image: this.opencvService.wrapBase64(image),
+      })
+      .catch((e: AxiosError<E>) => {
         throw e.response.data
       })
 
@@ -33,11 +40,11 @@ export class OpencvSearchService {
 
   // Busca um ou mais imagens da pessoa
   async searchFace<R = PersonOpencv[], E = ErrorResponseOpencv>(
-    images: string,
-    max_results: number = 1,
+    image: string,
+    max_results: number = 2,
   ) {
     const request = <SearchPersonOpencv>{
-      images: [images],
+      images: [this.opencvService.wrapBase64(image)],
       max_results: max_results,
       min_score: this.min_score,
     }
@@ -47,8 +54,6 @@ export class OpencvSearchService {
       .catch((e: AxiosError<E>) => {
         throw e.response.data
       })
-
-    console.log(data)
 
     return data
   }
