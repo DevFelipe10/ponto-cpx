@@ -1,11 +1,5 @@
+import { FaceRectangle } from 'src/face-recognition/domain/entities/face-plus-plus/face-rectangle.facepp.'
 import { ResultFaceRecognition } from './result-face-recognition.entity'
-
-export type FaceRectangle = {
-  top: number
-  left: number
-  width: number
-  height: number
-}
 
 export type FaceDetectResult = {
   face_token: string

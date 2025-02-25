@@ -52,15 +52,15 @@ export class AuthGuard implements CanActivate {
   }
 
   // private extractToken(request: FastifyRequest): string | undefined {
-  //   const token = this.extractTokenFromHeader(request)
-  //   return token === undefined ? this.extractTokenFromCookie(request) : token
+  //   const token = this.extractTokenFromCookie(request)
+  //   return token === undefined ? this.extractTokenFromHeader(request) : token
   // }
 
   // private extractTokenFromHeader(request: FastifyRequest): string | undefined {
+  //   console.log(request.headers)
+
   //   const [token] =
-  //     (request.headers.authorization &&
-  //       request.headers.authorization.split(' ')) ??
-  //     []
+  //     (request.headers.cookie && request.headers.cookie.split(' ')) ?? []
 
   //   return token
   // }

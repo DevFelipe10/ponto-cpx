@@ -48,7 +48,8 @@
   margin-bottom: 15px;
 }
 
-.input {
+.input,
+Input {
   /* width: -webkit-fill-available; */
   /* width: 507px;
   padding: 10px;

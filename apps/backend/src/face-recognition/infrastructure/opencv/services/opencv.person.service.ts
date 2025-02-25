@@ -1,10 +1,20 @@
 import { Injectable } from '@nestjs/common'
 import { AxiosError } from 'axios'
 import { EnvConfigService } from 'src/shared/infrastructure/env-config/env-config.service'
-import { PersonCreateOpencv, PersonOpencv } from '../types/opencv.person.type'
+import {
+  PersonCreateOpencv,
+  PersonOpencv,
+  SearchPersonResultOpencv,
+} from '../types/opencv.person.type'
 import { ErrorResponseOpencv } from '../types/opencv.type'
 import { OpencvHttpService } from '../opencv-http/opencv-http.service'
 import { OpencvService } from '../opencv.service'
+import { PageQuery } from 'src/shared/domain/entities/pagination/page-query'
+import {
+  ListSearchPerson,
+  PersonPaginate,
+  SearchPersonResult,
+} from 'src/shared/domain/entities/pagination/list-search-person'
 
 @Injectable()
 export class OpencvPersonService {
@@ -22,13 +32,37 @@ export class OpencvPersonService {
     const { data } = await this.httpService
       .get<PersonOpencv | null>(`${this.apiUrl}/person/${personId}`)
       .catch<Promise<null>>((e: AxiosError<ErrorResponseOpencv>) => {
-        // throw e.response.data
-        console.log(e.response.data)
         return null
       })
     console.log(data)
 
     return data
+  }
+
+  async getPersons(pageQueries: PageQuery): Promise<ListSearchPerson> {
+    const { data } = await this.httpService
+      .get<SearchPersonResultOpencv | null>(`${this.apiUrl}/persons`, {
+        skip: pageQueries.skip,
+        take: pageQueries.limit,
+      })
+      .catch<Promise<null>>((e: AxiosError<ErrorResponseOpencv>) => {
+        return null
+      })
+
+    const searchPerson = new SearchPersonResult(
+      data.count,
+      data.persons.map(
+        person =>
+          new PersonPaginate(
+            person.name,
+            person.name,
+            person.create_date,
+            person.modified_date,
+          ),
+      ),
+    )
+
+    return new ListSearchPerson(searchPerson, pageQueries.limit)
   }
 
   // async createPerson(person: PersonCreateOpencv) {

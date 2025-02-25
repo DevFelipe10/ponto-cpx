@@ -1,6 +1,5 @@
-import axios, { AxiosError, HttpStatusCode } from 'axios'
-import { useState } from 'react'
-// import { useAuthentication } from "./use-authentication-api";
+import api from '@/api'
+import { AxiosError, HttpStatusCode } from 'axios'
 
 type EventoGetSetup = {
   ID: number
@@ -43,11 +42,11 @@ type FormatoRel = {
   PODEUSAR: string
 }
 
-export type ResponseApi<T = undefined> = {
+export type ResponseApi<D = undefined> = {
   status: HttpStatusCode
   message?: string
   error?: string
-  data?: T
+  data?: D
 }
 
 export type ResultGetConfig = {
@@ -59,10 +58,7 @@ export type ResultGetConfig = {
   Eventos: EventoGetSetup[]
 }
 
-export type ResultPointRegister = {
-  success: boolean
-  errormsg: string
-}
+export type ResultPointRegister = { success: boolean; errormsg: string }
 
 export type MarcacaoMisterT = {
   Versao: string
@@ -82,38 +78,39 @@ export type MarcacaoMisterT = {
 export const useMisterT = () => {
   const env = import.meta.env
 
-  // const { signIn } = useAuthentication();
-
   // TODO: Add progress state to track download progress and update it in the UI.
-  const [progress, setProgress] = useState<number>(10)
+  // const [progress, setProgress] = useState<number>(10)
+  // const [configMisterT, setConfigMisterT] = useState<ResultGetConfig>()
 
-  const getConfgiMisterT = async (): Promise<ResponseApi<ResultGetConfig>> => {
-    // await signIn();
+  // const getConfgiMisterT = async (): Promise<ResponseApi<ResultGetConfig>> => {
+  //   const { data } = await axios
+  //     .get<ResponseApi<ResultGetConfig>>(
+  //       `${env.VITE_API_URL_MISTERT}/getconfig`,
+  //       {
+  //         onDownloadProgress: progressEvent => {
+  //           if (progressEvent.total != undefined) {
+  //             const percentCompleted = Math.round(
+  //               (progressEvent.loaded * 100) / progressEvent.total,
+  //             )
 
-    const { data } = await axios
-      .get<ResponseApi<ResultGetConfig>>(
-        `${env.VITE_API_URL_MISTERT}/getconfig`,
-        {
-          onDownloadProgress: progressEvent => {
-            if (progressEvent.total != undefined) {
-              const percentCompleted = Math.round(
-                (progressEvent.loaded * 100) / progressEvent.total,
-              )
+  //             setProgress(percentCompleted)
+  //           }
+  //         },
+  //       },
+  //     )
+  //     .then(response => {
+  //       setConfigMisterT(response.data.data)
+  //       return response
+  //     })
+  //     .catch((err: AxiosError<ResponseApi<ResultGetConfig>>) => err.response!)
 
-              setProgress(percentCompleted)
-            }
-          },
-        },
-      )
-      .catch(err => err)
-
-    return data
-  }
+  //   return data
+  // }
 
   const pointRegisterMisterT = async (
     body: MarcacaoMisterT,
   ): Promise<ResponseApi<ResultPointRegister>> => {
-    const { data } = await axios
+    const { data } = await api
       .post<ResponseApi<ResultPointRegister>>(
         `${env.VITE_API_URL_MISTERT}/pointregister`,
         body,
@@ -139,5 +136,5 @@ export const useMisterT = () => {
     return data
   }
 
-  return { progress, pointRegisterMisterT, getConfgiMisterT }
+  return { pointRegisterMisterT }
 }

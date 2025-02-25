@@ -4,25 +4,69 @@ API de Reconhecimento Facial
 
 # Header
 
-## Token: \#\#\#
+| Parâmetros   | Valor                  | Descrição                                       |
+| ------------ | ---------------------- | ----------------------------------------------- |
+| URL          | https://{DOMINIO}/api/ | URL do servidor para API                        |
+| Content-Type | application/json       | Indentificar o conteúdo enviado para o servidor |
 
-| Parâmetros    | Valor                  | Descrição                                       |
-| ------------- | ---------------------- | ----------------------------------------------- |
-| URL           | https://{DOMINIO}/api/ | URL do servidor para API                        |
-| Content-Type  | application/json       | Indentificar o conteúdo enviado para o servidor |
-| Authorization | bearer {TOKEN}         | Bearer token                                    |
+# Cookie
+
+| Parâmetros | Valor          | Descrição    |
+| ---------- | -------------- | ------------ |
+| Token      | bearer {TOKEN} | Bearer token |
+
+# Autenticação
+
+## # Obter Bearer Token
+
+Este endpoint é utilizado para obter Bearer Token
+O token de autenticação é inserido no cookie
+
+### Endpoint
+
+| Método |    URI     |
+| :----: | :--------: |
+|  POST  | auth/login |
+
+### Parâmetros de Requisição
+
+```json
+{
+  "username": required|string,
+  "password": required|string
+}
+```
+
+### Respostas Esperadas
+
+### Sucesso
+
+```
+HTTP Status 201
+```
+
+### Erro
+
+```json
+{
+  "message": "Usuário não encontrado",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
 
 # MisterT
 
 ## # Obter Configuração do relógio de ponto
 
-Este endpoint é utilizado para obter as configurações do relógio de ponto
+Este endpoint é utilizado para obter a confguração do relógio de ponto do MisterT
 
 ### Endpoint
 
-| Método |        URI        | Autorização  |
-| :----: | :---------------: | :----------: |
-|  GET   | mistert/getconfig | Bearer Token |
+| Método |      URI       | Autorização  |
+| :----: | :------------: | :----------: |
+|  GET   | mistert/config | Bearer Token |
+
 
 ### Respostas Esperadas
 
@@ -33,59 +77,18 @@ Code 200
 ```json
 {
   "Success": true,
-  "ErrorMsg": "",
-  "Versao": "1.0",
-  "URL_Img_Logo": "http://andregarcia73.ddns.net:8088/SuaEmpresa/Logotipo.gif",
-  "FormatoRel": {
-    "ID": 2,
-    "IDDM": 1,
-    "SEQUENCIA": "9999",
-    "DESCRICAO": "Relógio Facial",
-    "EXDESCRI": "N",
-    "IDFUSOHOR": 1,
-    "EXFUSOHOR": "N",
-    "EXHORVERAO": "N",
-    "IDREGDIA": 1,
-    "EXREGDIA": "N",
-    "HSREGDIA": "N",
-    "IDEVENTO": 2,
-    "EXEVENTO": "S",
-    "HSEVENTO": "N",
-    "IDFATOR": 1,
-    "EXFATOR": "N",
-    "HSFATOR": "N",
-    "IDORIGEM": 2,
-    "EXORIGEM": "N",
-    "HSORIGEM": "N",
-    "IDIPORIGEM": 2,
-    "EXIPORIGEM": "N",
-    "CHAVE": "594924290120251508202652355327",
-    "OBSGER": "",
-    "PODEUSAR": "S"
-  },
-  "Eventos": [
-    {
-      "ID": 2,
-      "IDDM": 1,
-      "IDTIPOPON": 2,
-      "SEQUENCIA": "1",
-      "DESCRICAO": "Entrada Manhã",
-      "OBSGER": "",
-      "SEAPLICARP": "S",
-      "SEAPLICADF": "S",
-      "EXIBENOSRE": "S",
-      "PODEUSAR": "S"
-    }
-  ]
+  "ErrorMsg": ""
 }
 ```
 
 ### Erro
 
+Code 400
+
 ```json
 {
-  "message": "Error getting MisterT setup",
-  "error": "Parâmetro P não recebido no get",
+  "message": "Error registering point",
+  "error": "Erro na Marcação: Biometria facial inválida",
   "status": 400
 }
 ```
@@ -117,7 +120,6 @@ Este endpoint é utilizado para registrar ponto no MisterT
   "OBSREG": required|string,
   "IsFacialValid": required|boolean,
 }
-
 ```
 
 ### Descrição dos campos

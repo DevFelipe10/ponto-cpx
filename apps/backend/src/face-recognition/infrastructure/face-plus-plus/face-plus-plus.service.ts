@@ -21,9 +21,28 @@ import {
   AddFaceResultEntity,
   AddFaceResultEntityFactory,
 } from 'src/shared/domain/entities/face-recognition/face-plus-plus/add-face-result.entity'
+import { PageQuery } from 'src/shared/domain/entities/pagination/page-query'
+import {
+  ListSearchPerson,
+  PersonPaginate,
+  SearchPersonResult,
+} from 'src/shared/domain/entities/pagination/list-search-person'
+import { GetDetailResultEntity } from 'src/shared/domain/entities/face-recognition/face-plus-plus/get-person-result.entity'
 
 type ErrorFacePlusPlusService = {
   error_message: string
+}
+
+type DetailsFaceSet = {
+  faceset_token: string
+  tags: string
+  time_used: number
+  user_data: string
+  display_name: string
+  face_tokens: string[]
+  face_count: number
+  request_id: string
+  outer_id: string
 }
 
 @Injectable()
@@ -38,7 +57,6 @@ export class FacePlusPlusService
     private readonly envConfigService: EnvConfigService,
   ) {}
 
-  // async detectFaces(imageData: string): Promise<DetectResultPlusPlusEntity> {
   async detectFace(imageData: string): Promise<DetectResultEntity> {
     const { data } = await firstValueFrom(
       this.httpService
@@ -93,6 +111,82 @@ export class FacePlusPlusService
     )
 
     return SearchFaceResultEntityFactory.create(data)
+  }
+
+  async getPersons(pageQueries: PageQuery) {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post<DetailsFaceSet>(
+          `${this.envConfigService.getFaceppBaseUrl()}/faceset/getdetail`,
+          {
+            api_key: this.envConfigService.getFaceppApiKey(),
+            api_secret: this.envConfigService.getFaceppApiSecret(),
+            outer_id: this.envConfigService.getFaceppListId(),
+          },
+          {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          },
+        )
+        .pipe(
+          delay(3000),
+          catchError((error: AxiosError<ErrorFacePlusPlusService>) => {
+            delay(3000)
+            this.logger.error(error.response.data)
+            throw error.response.data.error_message + ' - getPersons'
+          }),
+        ),
+    )
+
+    const { face_count, face_tokens } = data
+    const persons: PersonPaginate[] = []
+    const totalPage = PageQuery.calculateTotalPages(
+      face_tokens.length,
+      pageQueries.limit,
+    )
+
+    face_tokens.splice(0, (pageQueries.page - 1) * pageQueries.limit)
+
+    face_tokens.splice(
+      pageQueries.limit,
+      face_tokens.length - pageQueries.limit,
+    )
+
+    for (const token of face_tokens) {
+      const detail = await this.getDetail(token)
+      persons.push(new PersonPaginate(detail.user_id))
+    }
+
+    // Criar resultado da pesquisa de pessoas
+    const searchPerson = new SearchPersonResult(face_count, persons)
+
+    return new ListSearchPerson(searchPerson, pageQueries.limit)
+  }
+
+  async getDetail(face_token: string) {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post<GetDetailResultEntity>(
+          `${this.envConfigService.getFaceppBaseUrl()}/face/getdetail`,
+          {
+            api_key: this.envConfigService.getFaceppApiKey(),
+            api_secret: this.envConfigService.getFaceppApiSecret(),
+            face_token: face_token,
+          },
+          {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          },
+        )
+        .pipe(
+          delay(3000),
+          catchError((error: AxiosError<ErrorFacePlusPlusService>) => {
+            delay(3000)
+            this.logger.error(error.response.data)
+            throw error.response.data.error_message + ' - getDetail'
+          }),
+        ),
+    )
+
+    return data
   }
 
   async setUserId(

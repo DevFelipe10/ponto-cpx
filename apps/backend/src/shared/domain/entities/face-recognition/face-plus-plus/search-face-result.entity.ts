@@ -1,10 +1,5 @@
+import { Thresholds } from 'src/face-recognition/domain/entities/face-plus-plus/thresholds.facepp'
 import { ResultFaceRecognition } from './result-face-recognition.entity'
-
-export type Thresholds = {
-  1e-3: number
-  1e-5: number
-  1e-4: number
-}
 
 export type ResultsSearchFace = {
   confidence: number

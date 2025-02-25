@@ -48,7 +48,7 @@ export class MistertService {
         .pipe(
           catchError(error => {
             console.log(error.response)
-            throw 'An error happened when trying to detect the face'
+            throw 'An error happened when trying to get the webponto configuration'
           }),
         ),
     )
@@ -84,8 +84,9 @@ export class MistertService {
         })
         .pipe(
           catchError(error => {
+            console.log(error)
             console.log(error.response)
-            throw 'An error happened when trying to detect the face'
+            throw 'An error happened when trying to getUsersApi()'
           }),
         ),
     )

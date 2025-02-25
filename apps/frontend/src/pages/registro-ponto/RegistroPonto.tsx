@@ -1,6 +1,5 @@
-import React, { LegacyRef, useEffect, useState } from 'react'
+import React, { LegacyRef, useEffect, useRef, useState } from 'react'
 import styles from './RegistroPonto.module.css'
-// import logo from "./assets/logo.png";
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -25,7 +24,6 @@ import { Progress } from '@/components/ui/progress'
 import {
   MarcacaoMisterT,
   ResponseApi,
-  ResultGetConfig,
   ResultPointRegister,
   useMisterT,
 } from '@/hooks/use-mistert'
@@ -36,22 +34,25 @@ import {
   FaceAuthenticateResponse,
   useFaceAuthentication,
 } from '@/hooks/use-face-authentication'
+import { Skeleton } from '@/components/ui/skeleton'
+import { toast, Toaster } from 'sonner'
+import { useConfig } from '@/hooks/use-config'
 
-type FormData = {
-  matricula: string
-  event: string
-}
+type FormData = { matricula: string; evento: string }
 
 const RegistroPonto: React.FC = () => {
-  // const navigate = useNavigate();
-
   const { faceAuthenticate } = useFaceAuthentication()
-  const { progress, pointRegisterMisterT, getConfgiMisterT } = useMisterT()
+  const {
+    getConfgiMisterT,
+    getTokenRegistroPonto,
+    loading,
+    progress,
+    configMisterT,
+  } = useConfig()
+  const { pointRegisterMisterT } = useMisterT()
   const { latitude, longitude, precisao, errorGeolocation, configGeolocation } =
     useGeolocation()
 
-  const [loading, setLoading] = useState<boolean>(true)
-  const [configMisterT, setConfigMisterT] = useState<ResultGetConfig>()
   const [submitted, setSubmitted] = useState<boolean>(false)
   const [loadingCaptureFace, setLoadingCaptureFace] = useState<boolean>(false)
 
@@ -60,31 +61,61 @@ const RegistroPonto: React.FC = () => {
   const [resultPointRegister, setResultPointRegister] =
     useState<ResultPointRegister>()
 
-  // const [dataPonto, setDataPonto] = useState(new Date());
+  const [loadingToken, setLoadingToken] = useState<boolean>(true)
 
   const [formData, setFormData] = useState<FormData>({
     matricula: '',
-    event: '2',
+    evento: '2',
   })
 
-  // const [progress, setProgress] = React.useState(13);
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useEffect(() => {
+    if (loadingToken) {
+      setLoadingToken(false)
+
+      getTokenRegistroPonto().then(() => {
+        getConfgiMisterT().then(config => {
+          if (config === undefined) {
+            toast('Não autenticado, tente novamente mais tarde', {
+              duration: 3000,
+              position: 'bottom-right',
+            })
+          }
+        })
+      })
+    }
+
+    configGeolocation()
+  }, [configGeolocation, getConfgiMisterT, getTokenRegistroPonto, loadingToken])
 
   const handleChangeNumeroRegistro = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
   ) => {
-    const { name, value } = event.target
-    setFormData({ ...formData, [name]: value })
+    const { value } = event.target
+    setFormData(prevState => ({ ...prevState, matricula: value }))
+
+    // Manter o foco no input após atualização do estado
+    setTimeout(() => inputRef.current?.focus(), 0)
   }
 
   // Manipulador para o Select
   const handleSelectChange = (value: string) => {
-    setFormData({ ...formData, event: value })
+    console.log(formData)
+    console.log(formData.evento)
+    console.log(value)
+
+    setFormData(prevState => ({ ...prevState, evento: value }))
+    console.log(formData)
+
+    // // Manter o foco no input após atualização do estado
+    // setTimeout(() => inputRef.current?.focus(), 0)
   }
 
   function WebcamCapture() {
     const videoConstraints = {
-      width: 1280,
-      height: 720,
+      // width: 1280,
+      // height: 720,
       facingMode: 'user',
     }
 
@@ -96,9 +127,16 @@ const RegistroPonto: React.FC = () => {
         return
       }
 
+      // console.log(
+      //   webcamRef.current.getScreenshot({ height: 1080, width: 1920 }),
+      // )
+
       setLoadingCaptureFace(true)
 
-      const imageSrc = webcamRef.current.getScreenshot()!
+      const imageSrc = webcamRef.current.getScreenshot({
+        height: 1080,
+        width: 1920,
+      })!
 
       // Autenticar a face da imagem
       const resFaceAuthenticate = await faceAuthenticate(
@@ -115,18 +153,13 @@ const RegistroPonto: React.FC = () => {
         formData.matricula = resFaceAuthenticate.data?.userid
       }
 
-      // const userIdMarcacao =
-      //   (formData.user_id ?? resFaceAuthenticate.data === undefined)
-      //     ? undefined
-      //     : resFaceAuthenticate.data.userid;
-
       const dateMarcacao = new Date()
 
       const { ip } = await (
         await fetch('https://api.ipify.org?format=json')
       ).json()
-      // .then((response) => response.json())
-      // .catch((error) => console.error("Erro ao obter IP:", error));
+
+      console.log(formData.evento)
 
       const bodyMarcacao: MarcacaoMisterT = {
         Versao: '1.0',
@@ -134,7 +167,7 @@ const RegistroPonto: React.FC = () => {
         DATA: dateMarcacao.toLocaleDateString(),
         HORA: dateMarcacao.toLocaleTimeString(),
         FUSOHORAR: `${(dateMarcacao.getTimezoneOffset() / -60).toString()}:00`,
-        IDEVENTO: Number.parseInt(formData.event),
+        IDEVENTO: Number.parseInt(formData.evento),
         IPORIGEM: ip,
         LATITUDE: latitude,
         LONGITUDE: longitude,
@@ -175,12 +208,41 @@ const RegistroPonto: React.FC = () => {
     )
   }
 
+  // function submitRegistrarPonto(event) {
+  //   event.preventDefault()
+
+  //   const { matricula, evento } = formData
+
+  //   if (!matricula || !evento) {
+  //     toast.error('Preencha todos os campos obrigatórios.')
+  //     return
+  //   }
+
+  //   // TODO: verificar se o número de registro já está cadastrado no MT
+  //   // if (isMatriculaCadastrada) {
+  //   //   toast.error('Número de registro já cadastrado.')
+  //   //   return
+  //   // }
+
+  //   // TODO: verificar se o evento existe no MT
+  //   // if (!isEventoValido) {
+  //   //   toast.error('Evento inválido.')
+  //   //   return
+  //   // }
+
+  //   // TODO: verificar se a pessoa possui permissão para marcar esse evento
+  //   // if (!possuiPermissao) {
+  //   //   toast.error('Você não possui permissão para marcar esse evento.')
+  // }
+
   function ContentRegistroPonto() {
     return (
       <div className="grid gap-4 justify-center">
         {/* Número de Registro */}
-        <div className="flex flex-col space-y-1.5 w-[507px]">
+        {/* <div className="flex flex-col space-y-1.5 w-[507px]"> */}
+        <div className="flex flex-col space-y-1.5 min-w-[300px] sm:w-[400px] lg:w-[500px]">
           <Input
+            ref={inputRef}
             name="matricula"
             value={formData.matricula}
             onChange={handleChangeNumeroRegistro}
@@ -196,9 +258,7 @@ const RegistroPonto: React.FC = () => {
         ) : (
           <div className={styles.input}>
             <Select
-              // defaultValue="entrada-manha"
-              defaultValue="2"
-              value={formData.event}
+              value={formData.evento}
               onValueChange={handleSelectChange}
               required
             >
@@ -215,19 +275,11 @@ const RegistroPonto: React.FC = () => {
                           ? 'true'
                           : 'false'
                       }
-                      value={`"${item.ID}"`}
+                      value={`${item.ID}`}
                     >
                       {item.DESCRICAO}
                     </SelectItem>
                   ))}
-                  <SelectItem aria-selected="true" value="2">
-                    Entrada Manhã
-                  </SelectItem>
-                  {/* <SelectItem value="3">Saída Manhã</SelectItem>
-                <SelectItem value="4">Entrada Tarde</SelectItem>
-                <SelectItem value="5">Saída Tarde</SelectItem>
-                <SelectItem value="6">Entrada Extra</SelectItem>
-                <SelectItem value="7">Saída Extra</SelectItem> */}
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -278,39 +330,23 @@ const RegistroPonto: React.FC = () => {
   //   );
   // }
 
-  useEffect(() => {
-    document.body.style.overflow = 'hidden'
-
-    const fetchData = async () => {
-      try {
-        const resConfigMisterT = await getConfgiMisterT()
-        setConfigMisterT(resConfigMisterT.data)
-      } catch (error) {
-        console.error('Erro ao buscar dados:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-
-    configGeolocation()
-
-    return () => {
-      document.body.style.overflow = 'scroll'
-      // setInterval(() => setDataPonto(new Date()), 1000);
-    }
-  }, [])
-
   return (
     // <Layout>
     //   <div className={styles.divBody}>
-    <div className="place-items-center w-screen h-screen">
+    <div className="content-center place-items-center w-screen h-screen">
+      <Toaster />
       <div className={styles.header}>
-        <img src={configMisterT?.URL_Img_Logo} className={styles.logo} />
+        {loading ? (
+          <Skeleton className="h-16 w-28 m-2" />
+        ) : (
+          <img src={configMisterT?.URL_Img_Logo} className={styles.logo} />
+        )}
       </div>
       {/* Card */}
-      {loading || errorGeolocation != undefined || latitude === 0.0 ? (
+      {configMisterT === undefined ||
+      loading ||
+      errorGeolocation != undefined ||
+      latitude === 0.0 ? (
         <CardRegistroPonto cardContent={<LoadingRegistroPonto />} />
       ) : (
         // ? (
@@ -332,7 +368,7 @@ const RegistroPonto: React.FC = () => {
           cardFooter={
             <Dialog>
               <DialogTrigger asChild>
-                <Button type="submit">Registrar</Button>
+                <Button>Registrar</Button>
               </DialogTrigger>
               {submitted ? (
                 <DialogContent>

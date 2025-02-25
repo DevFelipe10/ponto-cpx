@@ -20,8 +20,8 @@ export class OpencvHttpService extends BaseHttpService {
     return new AxiosHeaders({ 'X-API-KEY': this.apiKey })
   }
 
-  async get<T = any>(url: string) {
-    return super.get<T>(url, this.header())
+  async get<T = any>(url: string, params?: any) {
+    return super.get<T>(url, this.header(), params)
   }
 
   async post<T = any>(url: string, data: any) {

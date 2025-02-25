@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common'
-import { ServeStaticModule } from '@nestjs/serve-static'
+// import { ServeStaticModule } from '@nestjs/serve-static'
 import { join } from 'path'
 import { HttpModule } from '@nestjs/axios'
 import { EnvConfigModule } from './shared/infrastructure/env-config/env-config.module'
@@ -14,9 +14,9 @@ import { RolesModule } from './shared/infrastructure/roles/roles.module'
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '../..', 'frontend', 'dist'),
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '../..', 'frontend', 'dist'),
+    // }),
     EnvConfigModule,
     FacePlusPlusModule,
     AzureModule,

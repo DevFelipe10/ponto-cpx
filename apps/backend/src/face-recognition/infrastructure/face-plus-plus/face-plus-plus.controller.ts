@@ -1,17 +1,22 @@
-import { Controller, Post, Body, HttpStatus, Res } from '@nestjs/common'
+import {
+  Controller,
+  Post,
+  Body,
+  HttpStatus,
+  Res,
+  Query,
+  Get,
+} from '@nestjs/common'
 import { FastifyReply } from 'fastify'
 import { FacePlusPlusService } from './face-plus-plus.service'
 import { ResponseApi } from 'src/shared/domain/entities/response-api'
-import { HttpService } from '@nestjs/axios'
-import { EnvConfigService } from 'src/shared/infrastructure/env-config/env-config.service'
+import { PageQuery } from 'src/shared/domain/entities/pagination/page-query'
+import { Role } from 'src/shared/domain/entities/roles/role.enum'
+import { Roles } from 'src/shared/domain/entities/roles/roles.decorator'
 
 @Controller('face-plus-plus')
 export class FacePlusPlusController {
-  constructor(
-    private readonly facePlusPlusService: FacePlusPlusService,
-    private readonly httpService: HttpService,
-    private readonly envConfigService: EnvConfigService,
-  ) {}
+  constructor(private readonly facePlusPlusService: FacePlusPlusService) {}
 
   // Cadastrar face no BD da API
   @Post('faceregister')
@@ -44,9 +49,9 @@ export class FacePlusPlusController {
         throw 'Error adding face'
       }
 
-      return res.status(HttpStatus.OK).send(<ResponseApi>{
+      return res.status(HttpStatus.CREATED).send(<ResponseApi>{
         message: 'Face registered successfully',
-        status: HttpStatus.OK,
+        status: HttpStatus.CREATED,
       })
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send(<ResponseApi>{
@@ -56,6 +61,7 @@ export class FacePlusPlusController {
     }
   }
 
+  @Roles(Role.REGISTRO_PONTO)
   @Post('faceauthenticate')
   async faceAuthenticate(
     @Res() res: FastifyReply,
@@ -106,6 +112,28 @@ export class FacePlusPlusController {
       return res.status(HttpStatus.BAD_REQUEST).send(<ResponseApi>{
         message: error,
         status: HttpStatus.BAD_REQUEST,
+      })
+    }
+  }
+
+  @Get('searchpersons')
+  // async searchPersons(@Query('page') page: string) {
+  async searchPersons(
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+    @Res() res: FastifyReply,
+  ) {
+    try {
+      const pageQueries = new PageQuery(page, limit)
+
+      const persons = await this.facePlusPlusService.getPersons(pageQueries)
+
+      return res.send(persons)
+    } catch (error) {
+      console.log(error)
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: error,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
       })
     }
   }

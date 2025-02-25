@@ -47,6 +47,20 @@
   overflow-y: auto;
 }
 
+.input,
+Input {
+  /* width: -webkit-fill-available; */
+  /* width: 507px;
+  padding: 10px;
+  font-size: 16px; */
+  /* border: 1px solid #EEEEEE; */
+  border-radius: 10px;
+  background-color: #eeeeee;
+  /* color: #EEEEEE; */
+  /* color: #757575; */
+  /* margin-bottom: 24px; */
+}
+
 a {
   /* font-weight: 500; */
   /* color: #646cff; */
@@ -116,7 +130,8 @@ button:focus-visible {
     --card-foreground: 240 10% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
-    --primary: 240 5.9% 10%;
+    /* --primary: 240 5.9% 10%; */
+    --primary: 195 100% 16%;
     --primary-foreground: 0 0% 98%;
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;

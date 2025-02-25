@@ -13,9 +13,14 @@ export class BaseHttpService {
     })
   }
 
-  protected async get<T = any>(url: string, extraHeaders?: AxiosHeaders) {
+  protected async get<T = any>(
+    url: string,
+    extraHeaders?: AxiosHeaders,
+    params?: any,
+  ) {
     const response = await this.httpService.axiosRef.get<T>(url, {
       headers: this.getHeaders(extraHeaders),
+      params: params,
     })
     return response
   }
@@ -24,9 +29,11 @@ export class BaseHttpService {
     url: string,
     data: any,
     extraHeaders?: AxiosHeaders,
+    params?: any,
   ) {
     const response = await this.httpService.axiosRef.post<T>(url, data, {
       headers: this.getHeaders(extraHeaders),
+      params: params,
     })
     return response
   }

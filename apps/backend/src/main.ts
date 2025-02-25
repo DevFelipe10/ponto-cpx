@@ -7,8 +7,13 @@ import { AppModule } from './app.module'
 import multipart from '@fastify/multipart'
 import { ValidationPipe } from '@nestjs/common'
 import fastifyCookie from '@fastify/cookie'
-import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface'
-import cors from '@fastify/cors'
+import {
+  DocumentBuilder,
+  SwaggerDocumentOptions,
+  SwaggerModule,
+} from '@nestjs/swagger'
+import { AuthGuard } from './shared/infrastructure/auth/auth.guard'
+import { join } from 'path'
 
 async function bootstrap() {
   const app = await NestFactory.create<NestFastifyApplication>(
@@ -16,15 +21,59 @@ async function bootstrap() {
     new FastifyAdapter(),
   )
 
-  app.register(fastifyCookie, {
-    secret: 'supersecret',
+  app.enableCors({
+    origin: ['https://ponto-cpx-frontend.vercel.app', 'http://localhost:5173'], // Permite requisições do frontend local
+    methods: 'GET,POST',
+    credentials: true, // Se estiver usando cookies ou autenticação via headers
   })
+
+  // Config cookies
+  app.register(fastifyCookie, { secret: 'supersecret' })
 
   app.useGlobalPipes(new ValidationPipe())
 
   app.setGlobalPrefix('/api')
 
   await app.register(multipart)
+
+  // Doc Swagger
+  const config = new DocumentBuilder()
+    .setTitle('API Registro de ponto')
+    // .setDescription('The cats API description')
+    .setVersion('1.0')
+    .addCookieAuth('token')
+    .build()
+
+  const document = SwaggerModule.createDocument(app, config)
+
+  // // Define a autenticação como obrigatória em todas as rotas automaticamente
+  // document.paths = Object.entries(document.paths).reduce(
+  //   (acc, [path, methods]) => {
+  //     acc[path] = Object.entries(methods).reduce(
+  //       (methodsAcc, [method, details]) => {
+  //         methodsAcc[method] = {
+  //           ...details,
+  //           security: [config.components.securitySchemes], // Define a segurança globalmente
+  //         }
+  //         return methodsAcc
+  //       },
+  //       {},
+  //     )
+  //     return acc
+  //   },
+  //   {},
+  // )
+
+  // console.log(document.paths['/api/auth/profile'].get.security)
+  // console.log(config.components.securitySchemes.cookie)
+
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      withCredentials: true, // Envia cookies automaticamente
+
+      // persistAuthorization: true, // Mantém o token ao recarregar a página
+    },
+  })
 
   // // Configuração do CORS
   // await app.register(cors, {

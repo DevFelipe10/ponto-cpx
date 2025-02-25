@@ -10,7 +10,7 @@ import { Role } from 'src/shared/domain/entities/roles/role.enum'
 export class MistertController {
   constructor(private readonly mistertService: MistertService) {}
 
-  @Get('getconfig')
+  @Get('config')
   @Roles(Role.REGISTRO_PONTO)
   async getconfig(@Res() res: FastifyReply) {
     try {

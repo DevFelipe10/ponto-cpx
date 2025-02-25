@@ -16,6 +16,11 @@ export class RolesGuard implements CanActivate {
     const request = context.switchToHttp().getRequest()
     const { user } = request
 
+    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+      context.getHandler(),
+      context.getClass(),
+    ])
+
     // Obter o nome do controlador e do método que está sendo acessado
     const controller = context.getClass().name
     const handler = context.getHandler().name
@@ -25,21 +30,17 @@ export class RolesGuard implements CanActivate {
       return true
     }
 
-    const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ])
-
     if (!user) {
       throw new ForbiddenException('Usuário não autenticado')
     }
 
-    if (!requiredRoles) {
-      throw new ForbiddenException('Acesso negado: permissão não definida')
-    }
-
+    // Bypass para o grupo Admin
     if (user.role === Role.ADMIN) {
       return true
+    }
+
+    if (!requiredRoles) {
+      throw new ForbiddenException('Acesso negado: permissão não definida')
     }
 
     if (requiredRoles.some(role => user.role === role)) {

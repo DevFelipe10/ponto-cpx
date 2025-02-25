@@ -7,9 +7,8 @@ import { join } from 'node:path'
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-
       envFilePath: [
-        join(__dirname, `../../../../../.env.${process.env.NODE_ENV}`),
+        join(__dirname, `../../../../.env.${process.env.NODE_ENV}`),
       ],
     }),
   ],

@@ -1,10 +1,19 @@
-import { Body, Controller, HttpStatus, Post, Res } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  HttpStatus,
+  Post,
+  Query,
+  Res,
+} from '@nestjs/common'
 import { OpencvPersonService } from './services/opencv.person.service'
 import { OpencvSearchService } from './opencv.search.service'
 import { FastifyReply } from 'fastify'
 import { ResponseApi } from 'src/shared/domain/entities/response-api'
 import { Roles } from 'src/shared/domain/entities/roles/roles.decorator'
 import { Role } from 'src/shared/domain/entities/roles/role.enum'
+import { PageQuery } from 'src/shared/domain/entities/pagination/page-query'
 
 @Controller('opencv')
 export class OpencvController {
@@ -83,18 +92,38 @@ export class OpencvController {
         }
       } // return search
 
-      return res.status(HttpStatus.OK).send(<ResponseApi>{
+      return res.status(HttpStatus.CREATED).send(<ResponseApi>{
         message: 'Face authenticated successfully',
         data: {
           confidence: searchResult[0].score,
           userid: searchResult[0].name,
         },
-        status: HttpStatus.OK,
+        status: HttpStatus.CREATED,
       })
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send(<ResponseApi>{
         message: error,
         status: HttpStatus.BAD_REQUEST,
+      })
+    }
+  }
+
+  @Get('searchpersons')
+  // async searchPersons(@Query('page') page: string) {
+  async searchPersons(
+    @Query('page') page: string,
+    @Query('limit') maxPageSize: string,
+    @Res() res: FastifyReply,
+  ) {
+    try {
+      const pageQueries = new PageQuery(page, maxPageSize)
+      const persons = await this.opencvPersonService.getPersons(pageQueries)
+
+      return res.send(persons)
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: error,
+        status: HttpStatus.INTERNAL_SERVER_ERROR,
       })
     }
   }
