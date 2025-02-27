@@ -2,10 +2,8 @@ import {
   Body,
   Controller,
   Get,
-  HttpStatus,
   NotFoundException,
   Post,
-  Req,
   Request,
   Res,
 } from '@nestjs/common'
@@ -13,48 +11,54 @@ import { Public } from './auth.guard'
 import { AuthService } from './auth.service'
 import { FastifyReply, FastifyRequest } from 'fastify'
 import {
-  ApiBearerAuth,
-  ApiCookieAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
-  ApiProperty,
-  getSchemaPath,
+  ApiOkResponse,
 } from '@nestjs/swagger'
-import { HttpStatusCode } from 'axios'
-import { never } from 'rxjs'
 import { Role } from 'src/shared/domain/entities/roles/role.enum'
 import { Roles } from 'src/shared/domain/entities/roles/roles.decorator'
-import { EnvConfigService } from '../env-config/env-config.service'
-
-export class SignInDto {
-  @ApiProperty()
-  username: string
-  @ApiProperty()
-  password: string
-}
+import { UserTokenResponseDto } from 'src/shared/domain/entities/auth/dto/user-token-reponse.dto.auth'
+import { SignInDto } from 'src/shared/domain/entities/auth/dto/sign.dto.auth'
+import { TokenResponseDto } from 'src/shared/domain/entities/auth/dto/token-response.dto.auth'
+import { LogoutResponseDto } from 'src/shared/domain/entities/auth/dto/logout-response.dto.auth'
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private authService: AuthService,
-    private envConfigService: EnvConfigService,
-  ) {}
+  constructor(private authService: AuthService) {}
 
   @ApiNotFoundResponse({
     description: 'User not found',
-    example: {
-      message: 'Usuário não encontrado',
-      error: 'Not Found',
-      statusCode: 404,
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string' },
+        error: { type: 'string' },
+        statusCode: { type: 'integer' },
+      },
+      example: {
+        message: 'Usuário não encontrado',
+        error: 'Not Found',
+        statusCode: 404,
+      },
     },
   })
-  @ApiCreatedResponse({ description: 'User created successfully' })
+  @ApiCreatedResponse({
+    description: 'Token created successfully',
+    type: TokenResponseDto,
+  })
   @Public()
   @Post('login')
-  async signIn(@Body() signInDto: SignInDto, @Res() res: FastifyReply) {
+  async signIn(
+    @Body() signInDto: SignInDto,
+    @Res() res: FastifyReply,
+  ): Promise<TokenResponseDto> {
     const { username, password } = signInDto
 
     const token = await this.authService.signIn(username, password)
+
+    if (token === undefined) {
+      throw new NotFoundException('Usuário não encontrado')
+    }
 
     return res
       .setCookie('token', token, {
@@ -65,9 +69,13 @@ export class AuthController {
         // expires: new Date(new Date().getTime() + 84600),
         maxAge: 86400,
       })
-      .send({ token: token })
+      .send(<TokenResponseDto>{ token: token })
   }
 
+  @ApiOkResponse({
+    description: 'Logged out successfully',
+    type: LogoutResponseDto,
+  })
   @Roles(Role.REGISTRO_PONTO)
   @Get('logout')
   logout(@Res() res: FastifyReply) {
@@ -78,12 +86,19 @@ export class AuthController {
         sameSite: 'none',
         path: '/',
       })
-      .send({ message: 'Token removido' })
+      .send(<LogoutResponseDto>{ message: 'Sessão encerrada' })
   }
 
-  @ApiCookieAuth()
+  @ApiOkResponse({
+    description: 'User profile retrieved successfully',
+    type: UserTokenResponseDto,
+  })
   @Get('profile')
-  getProfile(@Request() req) {
+  getProfile(@Request() req: AuthenticatedRequest) {
     return req.user
   }
+}
+
+interface AuthenticatedRequest extends FastifyRequest {
+  user: UserTokenResponseDto
 }
