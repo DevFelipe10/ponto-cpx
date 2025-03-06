@@ -19,7 +19,7 @@ export const useGeolocation = () => {
       },
       error => {
         if (latitude === 0.0) {
-          toast('Permita o acesso a notificação')
+          toast('Permita o acesso a localização')
         }
         setErrorGeoLocation(error)
       },

@@ -22,7 +22,7 @@ export class ResponseApi {
   @IsOptional()
   message?: string
 
-  @ApiPropertyOptional({ examples: ['errr'] })
+  @ApiPropertyOptional({ examples: ['error'] })
   error: string
 
   @ApiPropertyOptional({ type: Object })

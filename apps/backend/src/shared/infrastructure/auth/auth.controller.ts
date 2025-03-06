@@ -1,8 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
-  NotFoundException,
   Post,
   Request,
   Res,
@@ -57,7 +57,7 @@ export class AuthController {
     const token = await this.authService.signIn(username, password)
 
     if (token === undefined) {
-      throw new NotFoundException('Usuário não encontrado')
+      throw new BadRequestException('Usuário não encontrado')
     }
 
     return res

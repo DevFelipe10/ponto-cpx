@@ -111,21 +111,9 @@ export const useMisterT = () => {
     body: MarcacaoMisterT,
   ): Promise<ResponseApi<ResultPointRegister>> => {
     const { data } = await api
-      .post<ResponseApi<ResultPointRegister>>(
-        `${env.VITE_API_URL_MISTERT}/pointregister`,
-        body,
-        // {
-        //   onDownloadProgress: (progressEvent) => {
-        //     if (progressEvent.total != undefined) {
-        //       const percentCompleted = Math.round(
-        //         (progressEvent.loaded * 100) / progressEvent.total
-        //       );
-
-        //       setProgress(percentCompleted);
-        //     }
-        //   },
-        // }
-      )
+      .post<
+        ResponseApi<ResultPointRegister>
+      >(`${env.VITE_API_URL_MISTERT}/pointregister`, body)
       .catch((err: AxiosError<ResponseApi<ResultPointRegister>>) => {
         console.log('error: ' + err.response)
         return err.response!

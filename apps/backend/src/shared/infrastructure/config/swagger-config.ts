@@ -12,15 +12,12 @@ export default function swaggerConfig(app: NestFastifyApplication) {
 
   const document = SwaggerModule.createDocument(app, config)
 
-  SwaggerModule.setup(
-    'api/docs',
-    app,
-    document,
-    // {
-    // swaggerOptions: {
-    // withCredentials: true, // Envia cookies automaticamente
-    // persistAuthorization: true, // Mantém o token ao recarregar a página
-    // },
-    // }
-  )
+  SwaggerModule.setup('api/docs', app, document, {
+    customCssUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui.css',
+    customJs: [
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-standalone-preset.js',
+      'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.15.5/swagger-ui-bundle.js',
+    ],
+  })
 }

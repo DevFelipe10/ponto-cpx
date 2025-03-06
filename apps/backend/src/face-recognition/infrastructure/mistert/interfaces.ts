@@ -187,8 +187,7 @@ export class MarcacaoMisterT {
   @IsNotEmpty()
   PRECISAO: number
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiPropertyOptional()
   OBSREG: string
 
   @ApiProperty()

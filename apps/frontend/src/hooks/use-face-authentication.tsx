@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse } from 'axios'
+import { AxiosError, AxiosResponse } from 'axios'
 import { ResponseApi } from './use-mistert'
 import api from '@/api'
 
@@ -32,7 +32,7 @@ export const useFaceAuthentication = () => {
   }
 
   const faceAuthenticate = async (userId: string, imageSrc: string) => {
-    const res = await axios
+    const res = await api
       .post<ResponseApi<FaceAuthenticateResponse>>(
         `${env.VITE_API_URL_FACE_AUTHENTICATION}/faceauthenticate`,
         { userid: userId, image_base64: imageSrc },

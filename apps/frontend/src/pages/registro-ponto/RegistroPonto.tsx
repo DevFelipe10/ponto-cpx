@@ -37,6 +37,7 @@ import {
 import { Skeleton } from '@/components/ui/skeleton'
 import { toast, Toaster } from 'sonner'
 import { useConfig } from '@/hooks/use-config'
+import { Loader2 } from 'lucide-react'
 
 type FormData = { matricula: string; evento: string }
 
@@ -55,13 +56,17 @@ const RegistroPonto: React.FC = () => {
 
   const [submitted, setSubmitted] = useState<boolean>(false)
   const [loadingCaptureFace, setLoadingCaptureFace] = useState<boolean>(false)
+  const [cameraPermission, setCameraPermission] = useState<
+    'granted' | 'denied' | 'prompt' | 'unknown'
+  >('unknown')
 
   const [resultFaceAuthenticate, setResultFaceAuthenticate] =
     useState<ResponseApi<FaceAuthenticateResponse>>()
   const [resultPointRegister, setResultPointRegister] =
-    useState<ResultPointRegister>()
+    useState<ResponseApi<ResultPointRegister>>()
 
   const [loadingToken, setLoadingToken] = useState<boolean>(true)
+  const [loadingCheckCamera, setLoadingCheckCamera] = useState<boolean>(true)
 
   const [formData, setFormData] = useState<FormData>({
     matricula: '',
@@ -71,6 +76,43 @@ const RegistroPonto: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    const checkCameraPermission = async () => {
+      try {
+        // Chamar a permissão de câmera
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        })
+
+        stream.getTracks().forEach(track => track.stop()) // Fechar a câmera após testar
+
+        // Verifica a permissão da câmera
+        if (!navigator.permissions) {
+          console.warn('API Permissions não suportada')
+          return
+        }
+
+        const permissionStatus = await navigator.permissions.query({
+          name: 'camera' as PermissionName,
+        })
+
+        setCameraPermission(permissionStatus.state)
+
+        permissionStatus.onchange = () => {
+          setCameraPermission(permissionStatus.state)
+        }
+      } catch (error) {
+        toast('Permita o acesso a câmera')
+
+        console.error('Erro ao verificar permissão da câmera:', error)
+      }
+    }
+
+    if (loadingCheckCamera) {
+      setLoadingCheckCamera(false)
+
+      checkCameraPermission()
+    }
+
     if (loadingToken) {
       setLoadingToken(false)
 
@@ -84,10 +126,15 @@ const RegistroPonto: React.FC = () => {
           }
         })
       })
+      configGeolocation()
     }
-
-    configGeolocation()
-  }, [configGeolocation, getConfgiMisterT, getTokenRegistroPonto, loadingToken])
+  }, [
+    configGeolocation,
+    getConfgiMisterT,
+    getTokenRegistroPonto,
+    loadingToken,
+    loadingCheckCamera,
+  ])
 
   const handleChangeNumeroRegistro = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
@@ -123,13 +170,8 @@ const RegistroPonto: React.FC = () => {
 
     const capture = React.useCallback(async () => {
       if (webcamRef.current === null) {
-        // setLoadingCaptureFace(false);
         return
       }
-
-      // console.log(
-      //   webcamRef.current.getScreenshot({ height: 1080, width: 1920 }),
-      // )
 
       setLoadingCaptureFace(true)
 
@@ -179,11 +221,8 @@ const RegistroPonto: React.FC = () => {
       const resPointRegister = await pointRegisterMisterT(bodyMarcacao)
 
       // Alterar os states
-      if (resPointRegister.status === HttpStatusCode.Ok) {
-        setResultPointRegister(resPointRegister.data)
-        console.log(resultPointRegister?.success)
-      }
 
+      setResultPointRegister(resPointRegister)
       setResultFaceAuthenticate(resFaceAuthenticate)
       setLoadingCaptureFace(false)
       setSubmitted(true)
@@ -346,6 +385,7 @@ const RegistroPonto: React.FC = () => {
       {configMisterT === undefined ||
       loading ||
       errorGeolocation != undefined ||
+      cameraPermission !== 'granted' ||
       latitude === 0.0 ? (
         <CardRegistroPonto cardContent={<LoadingRegistroPonto />} />
       ) : (
@@ -376,8 +416,17 @@ const RegistroPonto: React.FC = () => {
                     <DialogTitle>Informação</DialogTitle>
                   </DialogHeader>
                   <div className="py-4 text-center">
-                    {resultFaceAuthenticate?.status === HttpStatusCode.Ok ? (
+                    {resultFaceAuthenticate?.status === HttpStatusCode.Ok &&
+                    resultPointRegister?.data?.success === true ? (
                       <h2>Registro de ponto realizado com sucesso!</h2>
+                    ) : resultPointRegister?.message !== undefined ? (
+                      <div>
+                        <h2>
+                          Registro de ponto não realizado. Tente novamente!
+                        </h2>
+                        <h2>{resultPointRegister?.message!.toString()}</h2>
+                        <h2>{resultPointRegister?.error?.toString()}</h2>
+                      </div>
                     ) : (
                       <div>
                         <h2>
@@ -386,11 +435,6 @@ const RegistroPonto: React.FC = () => {
                         <h2>{resultFaceAuthenticate!.message}</h2>
                       </div>
                     )}
-                    {/* <h2>
-                      {resultFaceAuthenticate === undefined
-                        ? errorFaceAuthenticate?.error
-                        : resultFaceAuthenticate.message}
-                    </h2> */}
 
                     <DialogFooter className="sm:justify-center">
                       <DialogClose
@@ -413,15 +457,21 @@ const RegistroPonto: React.FC = () => {
                   <DialogHeader className="px-4 mb-4">
                     <DialogTitle>Faça a captura do seu rosto</DialogTitle>
                   </DialogHeader>
-                  <div className="gap-4 text-center flex justify-center center">
-                    {loadingCaptureFace ? (
-                      <div className="py-4">
-                        <p>Aguarde a captura do rosto...</p>
-                      </div>
-                    ) : (
+                  {cameraPermission !== 'granted' ? (
+                    <div className="flex gap-2 py-4 place-content-center place-items-center">
+                      <Loader2 className="animate-spin" />
+                      <p>Permita o acesso a webcam</p>
+                    </div>
+                  ) : loadingCaptureFace ? (
+                    <div className="flex gap-2 py-4 place-content-center place-items-center">
+                      <Loader2 className="animate-spin" />
+                      <p>Aguarde a captura do rosto...</p>
+                    </div>
+                  ) : (
+                    <div className="gap-4 text-center flex justify-center center">
                       <WebcamCapture />
-                    )}
-                  </div>
+                    </div>
+                  )}
                   <DialogFooter className="items-center"></DialogFooter>
                 </DialogContent>
               )}

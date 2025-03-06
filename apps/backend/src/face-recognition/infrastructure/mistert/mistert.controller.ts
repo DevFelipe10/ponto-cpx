@@ -48,16 +48,11 @@ export class MistertController {
         throw result.ErrorMsg
       }
 
-      res.status(HttpStatus.BAD_REQUEST).send(<ResponseApi>{
-        status: HttpStatus.BAD_REQUEST,
-        message: 'Error getting MisterT setup',
-        error: 'teste',
+      return res.status(HttpStatus.OK).send(<ResponseApi>{
+        status: HttpStatus.OK,
+        message: 'MisterT setup fetched successfully',
+        data: result,
       })
-      // return res.status(HttpStatus.OK).send(<ResponseApi>{
-      //   status: HttpStatus.OK,
-      //   message: 'MisterT setup fetched successfully',
-      //   data: result,
-      // })
     } catch (e) {
       res.status(HttpStatus.BAD_REQUEST).send(<ResponseApi>{
         status: HttpStatus.BAD_REQUEST,
