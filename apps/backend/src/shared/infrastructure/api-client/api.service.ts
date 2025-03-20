@@ -27,11 +27,4 @@ export class ApiService implements ApiClient {
     )
     return response.data
   }
-
-  async delete<T>(url: string, headers: any = {}): Promise<T> {
-    const response = await firstValueFrom(
-      this.httpService.delete<T>(url, { headers }),
-    )
-    return response.data
-  }
 }

@@ -75,7 +75,12 @@ const LoginAdmin: React.FC = () => {
           </div>
           {/* Senha */}
           <div className="flex flex-col space-y-1.5 min-w-[300px] sm:w-[400px] lg:w-[500px]">
-            <Input name="password" required placeholder="Senha" />
+            <Input
+              type="password"
+              name="password"
+              required
+              placeholder="Senha"
+            />
           </div>
           {/* Botão Entrar */}
           <div className="flex justify-center">

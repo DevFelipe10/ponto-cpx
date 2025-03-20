@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -7,7 +8,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common'
-import { OpencvPersonService } from './services/opencv.person.service'
+import { OpencvPersonService } from './opencv.person.service'
 import { OpencvSearchService } from './opencv.search.service'
 import { FastifyReply } from 'fastify'
 import { ResponseApi } from 'src/shared/domain/entities/response-api'
@@ -32,7 +33,7 @@ export class OpencvController {
       // Detectar face na imagem
       const detectResult = await this.opencvSearchService.detect(imageBase64)
 
-      if (detectResult.length < 0) {
+      if (detectResult.length <= 0) {
         throw 'Face not found in image'
       }
 
@@ -61,13 +62,13 @@ export class OpencvController {
   @Roles(Role.REGISTRO_PONTO)
   async faceAuthenticate(
     @Res() res: FastifyReply,
-    @Body('image_base64') imageBase64: string,
-    @Body('userid') userId?: string | null,
+    @Body('imageBase64') imageBase64: string,
+    @Body('userId') userId?: string | null,
   ) {
     try {
       const detectResult = await this.opencvSearchService.detect(imageBase64)
 
-      if (detectResult.length < 0 || detectResult.length > 1) {
+      if (detectResult.length !== 1) {
         throw 'Face not detected or multiple faces detected'
       }
 
@@ -90,7 +91,7 @@ export class OpencvController {
         if (isUseridEqual === false) {
           throw `Userid not match Request: ${userId} - API: ${searchResult[0].name}`
         }
-      } // return search
+      }
 
       return res.status(HttpStatus.CREATED).send(<ResponseApi>{
         message: 'Face authenticated successfully',
@@ -109,21 +110,22 @@ export class OpencvController {
   }
 
   @Get('searchpersons')
-  // async searchPersons(@Query('page') page: string) {
   async searchPersons(
     @Query('page') page: string,
-    @Query('limit') maxPageSize: string,
+    @Query('limit') limit: string,
     @Res() res: FastifyReply,
   ) {
     try {
-      const pageQueries = new PageQuery(page, maxPageSize)
+      const pageQueries = new PageQuery({ limit: limit, page: page })
       const persons = await this.opencvPersonService.getPersons(pageQueries)
 
       return res.send(persons)
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
-        message: error,
-        status: HttpStatus.INTERNAL_SERVER_ERROR,
+      const status = error.status ?? HttpStatus.BAD_REQUEST
+
+      return res.status(status).send({
+        message: error.message,
+        status: status,
       })
     }
   }

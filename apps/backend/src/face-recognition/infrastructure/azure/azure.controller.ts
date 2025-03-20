@@ -44,7 +44,7 @@ export class AzureController {
       })
     }
   }
-  faceAuthenticate(imageBase64: string, userid: string) {
+  faceAuthenticate(imageBase64: string, userId: string) {
     throw new Error('Method not implemented.')
   }
 }

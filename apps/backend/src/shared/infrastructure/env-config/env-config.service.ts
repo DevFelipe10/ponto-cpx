@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common'
 import { EnvConfig } from './env-config.interface'
 import { ConfigService } from '@nestjs/config'
+import { join } from 'path'
 
 @Injectable()
 export class EnvConfigService implements EnvConfig {
@@ -155,7 +156,7 @@ export class EnvConfigService implements EnvConfig {
 
     return str
   }
-  getMinimumScoreSearch(): number {
+  getOpencvMinScoreFace(): number {
     const str = this.configService.get<number>('OPENCV_MIN_SCORE_FACE')
 
     if (str === undefined) {

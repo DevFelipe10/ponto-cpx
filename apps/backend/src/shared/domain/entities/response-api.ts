@@ -6,7 +6,7 @@ import {
 } from '@nestjs/swagger'
 import { IsOptional } from 'class-validator'
 
-@ApiExtraModels() // Registra como modelo extra para o Swagger
+@ApiExtraModels()
 export class ResponseApi {
   @ApiProperty({
     examples: [HttpStatus.OK, HttpStatus.BAD_REQUEST],

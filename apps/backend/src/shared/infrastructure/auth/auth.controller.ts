@@ -6,6 +6,7 @@ import {
   Post,
   Request,
   Res,
+  UseInterceptors,
 } from '@nestjs/common'
 import { Public } from './auth.guard'
 import { AuthService } from './auth.service'
@@ -23,8 +24,9 @@ import { TokenResponseDto } from 'src/shared/domain/entities/auth/dto/token-resp
 import { LogoutResponseDto } from 'src/shared/domain/entities/auth/dto/logout-response.dto.auth'
 
 @Controller('auth')
+// @UseInterceptors(CacheInterceptor)
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @ApiNotFoundResponse({
     description: 'User not found',
@@ -48,20 +50,17 @@ export class AuthController {
   })
   @Public()
   @Post('login')
-  async signIn(
-    @Body() signInDto: SignInDto,
-    @Res() res: FastifyReply,
-  ): Promise<TokenResponseDto> {
+  async signIn(@Body() signInDto: SignInDto, @Res() res: FastifyReply) {
     const { username, password } = signInDto
 
-    const token = await this.authService.signIn(username, password)
+    const tokenReponseDto = await this.authService.signIn(username, password)
 
-    if (token === undefined) {
+    if (tokenReponseDto === undefined) {
       throw new BadRequestException('Usuário não encontrado')
     }
 
     return res
-      .setCookie('token', token, {
+      .setCookie('token', tokenReponseDto.token, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
@@ -69,7 +68,7 @@ export class AuthController {
         // expires: new Date(new Date().getTime() + 84600),
         maxAge: 86400,
       })
-      .send(<TokenResponseDto>{ token: token })
+      .send(tokenReponseDto)
   }
 
   @ApiOkResponse({
@@ -86,7 +85,7 @@ export class AuthController {
         sameSite: 'none',
         path: '/',
       })
-      .send(<LogoutResponseDto>{ message: 'Sessão encerrada' })
+      .send(new LogoutResponseDto())
   }
 
   @ApiOkResponse({
@@ -99,6 +98,6 @@ export class AuthController {
   }
 }
 
-interface AuthenticatedRequest extends FastifyRequest {
+export interface AuthenticatedRequest extends FastifyRequest {
   user: UserTokenResponseDto
 }

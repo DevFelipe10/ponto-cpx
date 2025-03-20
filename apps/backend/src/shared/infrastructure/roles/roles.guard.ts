@@ -7,6 +7,8 @@ import {
 import { Reflector } from '@nestjs/core'
 import { ROLES_KEY } from '../../domain/entities/roles/roles.decorator'
 import { Role } from '../../domain/entities/roles/role.enum'
+import { User } from 'src/shared/domain/entities/auth/user.auth'
+import { UserTokenResponseDto } from 'src/shared/domain/entities/auth/dto/user-token-reponse.dto.auth'
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -14,7 +16,7 @@ export class RolesGuard implements CanActivate {
 
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest()
-    const { user } = request
+    const user = request.user as UserTokenResponseDto
 
     const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
       context.getHandler(),
@@ -25,7 +27,7 @@ export class RolesGuard implements CanActivate {
     const controller = context.getClass().name
     const handler = context.getHandler().name
 
-    // Permitir livre acesso apenas ao método signIn do AuthController
+    // Permitir acesso apenas ao método signIn do AuthController
     if (controller === 'AuthController' && handler === 'signIn') {
       return true
     }

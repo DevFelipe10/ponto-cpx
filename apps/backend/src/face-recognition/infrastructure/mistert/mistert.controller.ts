@@ -67,10 +67,10 @@ export class MistertController {
     description: 'Retorna o resultado do registro do ponto',
     schema: {
       allOf: [
-        { $ref: getSchemaPath(ResponseApi) }, // Define o esquema base
+        { $ref: getSchemaPath(ResponseApi) },
         {
           properties: {
-            data: { $ref: getSchemaPath(ResultPointRegister) }, // Define o tipo correto de `data`
+            data: { $ref: getSchemaPath(ResultPointRegister) },
           },
         },
       ],

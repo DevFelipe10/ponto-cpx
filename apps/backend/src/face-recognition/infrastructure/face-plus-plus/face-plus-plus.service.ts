@@ -52,7 +52,6 @@ export class FacePlusPlusService
   private readonly logger = new Logger(FacePlusPlusService.name)
 
   constructor(
-    // private readonly tokenApiService: TokenApiFacePlusPlusService,
     private readonly httpService: HttpService,
     private readonly envConfigService: EnvConfigService,
   ) {}
@@ -153,13 +152,19 @@ export class FacePlusPlusService
 
     for (const token of face_tokens) {
       const detail = await this.getDetail(token)
-      persons.push(new PersonPaginate(detail.user_id))
+      persons.push(new PersonPaginate({ id: detail.user_id }))
     }
 
     // Criar resultado da pesquisa de pessoas
-    const searchPerson = new SearchPersonResult(face_count, persons)
+    const searchPerson = new SearchPersonResult({
+      count: face_count,
+      persons: persons,
+    })
 
-    return new ListSearchPerson(searchPerson, pageQueries.limit)
+    return new ListSearchPerson({
+      limit: pageQueries.limit,
+      searchPersonResult: searchPerson,
+    })
   }
 
   async getDetail(face_token: string) {

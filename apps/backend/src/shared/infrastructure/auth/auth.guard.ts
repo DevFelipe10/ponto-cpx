@@ -9,6 +9,7 @@ import { EnvConfigService } from '../env-config/env-config.service'
 import { JwtService } from '@nestjs/jwt'
 import { Reflector } from '@nestjs/core'
 import { FastifyRequest } from 'fastify'
+import { PayloadGuardAuth } from 'src/shared/domain/entities/auth/payload-guard.auth'
 
 export const IS_PUBLIC_KEY = 'isPublic'
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true)
@@ -27,6 +28,7 @@ export class AuthGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ])
+
     if (isPublic) {
       return true
     }
@@ -37,10 +39,14 @@ export class AuthGuard implements CanActivate {
     if (!token) {
       throw new UnauthorizedException()
     }
+
     try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.envConfigService.getJwtSecret(),
-      })
+      const payload = await this.jwtService.verifyAsync<PayloadGuardAuth>(
+        token,
+        {
+          secret: this.envConfigService.getJwtSecret(),
+        },
+      )
 
       // 💡 We're assigning the payload to the request object here
       // so that we can access it in our route handlers
@@ -48,6 +54,7 @@ export class AuthGuard implements CanActivate {
     } catch (e) {
       throw new UnauthorizedException(e.message)
     }
+
     return true
   }
 

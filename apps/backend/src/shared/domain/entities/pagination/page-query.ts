@@ -1,11 +1,16 @@
+export type PageQueryProps = {
+  page: string
+  limit: string
+}
+
 export class PageQuery {
   private _page: number = 1 // Numero da página atual
   private _limit: number = 10
   private _skip: number
 
-  constructor(page: string, limit: string) {
-    this._page = Number.parseInt(page)
-    this._limit = Number.parseInt(limit)
+  constructor(props: PageQueryProps) {
+    this._page = Number.parseInt(props.page)
+    this._limit = Number.parseInt(props.limit)
     this._skip = (this._page - 1) * this._limit
   }
 

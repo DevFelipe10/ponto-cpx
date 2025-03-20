@@ -35,7 +35,7 @@ export const useFaceAuthentication = () => {
     const res = await api
       .post<ResponseApi<FaceAuthenticateResponse>>(
         `${env.VITE_API_URL_FACE_AUTHENTICATION}/faceauthenticate`,
-        { userid: userId, image_base64: imageSrc },
+        { userId: userId, imageBase64: imageSrc },
       )
       .then(
         (value: AxiosResponse<ResponseApi<FaceAuthenticateResponse>>) =>

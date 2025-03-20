@@ -1,7 +1,7 @@
 import { Thresholds } from 'src/face-recognition/domain/entities/face-plus-plus/thresholds.facepp'
 import { ResultFaceRecognition } from './result-face-recognition.entity'
 
-export type ResultsSearchFace = {
+export type ResultSearchFace = {
   confidence: number
   user_id: string
   face_token: string
@@ -9,14 +9,14 @@ export type ResultsSearchFace = {
 
 export class SearchFaceResultEntity extends ResultFaceRecognition<any> {
   public readonly thresholds: Thresholds
-  public readonly results: ResultsSearchFace[]
+  public readonly results: ResultSearchFace[]
   public readonly isConfidence: boolean
 
   constructor(
     request_id?: string,
     time_used?: number,
     thresholds?: Thresholds,
-    results?: ResultsSearchFace[],
+    results?: ResultSearchFace[],
     props?: any,
   ) {
     super(props, request_id, time_used)
