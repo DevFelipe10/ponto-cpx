@@ -66,7 +66,9 @@ describe('EnvConfigService unit tests', () => {
 
   describe('MisterT Configuration', () => {
     it('should return the MisterT Base URL', () => {
-      expect(sut.getMisterTBaseUrl()).toBe('https://mistert.example')
+      expect(sut.getMisterTBaseUrl()).toBe(
+        'http://andregarcia73.ddns.net:8088/MisterT.asp',
+      )
     })
   })
 

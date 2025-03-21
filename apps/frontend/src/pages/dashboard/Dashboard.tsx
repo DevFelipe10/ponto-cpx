@@ -50,6 +50,7 @@ const Dashboard: React.FC = () => {
           console.log(`${window.location.origin}`)
           window.location.href = window.location.origin
         }
+
         searchPersons().then(value => {
           const arr = Array.from({ length: value.totalPages }, (_, i) => i + 1)
           setPages(arr)

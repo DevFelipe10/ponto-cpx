@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker'
 import { Role } from '../../entities/roles/role.enum'
-import { UserProps } from '../../entities/auth/user.auth'
+import { UserAuthProps } from '../../entities/auth/user.auth'
 
 export type Props = {
   id?: number
@@ -9,7 +9,7 @@ export type Props = {
   role?: Role
 }
 
-export function UserAuthDataBuilder(props: Props): UserProps {
+export function UserAuthDataBuilder(props: Props): UserAuthProps {
   return {
     id: props.id ?? faker.number.int(),
     username: props.username ?? faker.person.firstName(),

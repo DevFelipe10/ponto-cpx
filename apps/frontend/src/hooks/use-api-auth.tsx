@@ -70,9 +70,7 @@ export const useApiAuth = () => {
   const logout = async () => {
     const { data } = await api
       .get<ApiResponse>(`${env.VITE_API_URL_AUTH}/logout`)
-      .then(res => {
-        return res
-      })
+      .then(res => res)
       .catch((err: AxiosError<ApiResponse>) => err.response!)
 
     return data

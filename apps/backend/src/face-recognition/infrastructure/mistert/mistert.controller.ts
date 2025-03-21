@@ -2,11 +2,7 @@ import { Body, Controller, Get, HttpStatus, Post, Res } from '@nestjs/common'
 import { MistertService } from './mistert.service'
 import { FastifyReply } from 'fastify'
 import { ResponseApi } from 'src/shared/domain/entities/response-api'
-import {
-  MarcacaoMisterT,
-  ResultGetConfig,
-  ResultPointRegister,
-} from './interfaces'
+import { ResultGetConfig } from './interfaces'
 import { Roles } from 'src/shared/domain/entities/roles/roles.decorator'
 import { Role } from 'src/shared/domain/entities/roles/role.enum'
 import {
@@ -15,6 +11,8 @@ import {
   ApiOkResponse,
   getSchemaPath,
 } from '@nestjs/swagger'
+import { MarcacaoMisterT } from 'src/face-recognition/domain/entities/mistert/marcacao.mistert'
+import { ResultPointRegisterMisterT } from 'src/face-recognition/domain/entities/mistert/result-point-register.mistert'
 
 @Controller('mistert')
 export class MistertController {
@@ -62,7 +60,7 @@ export class MistertController {
     }
   }
 
-  @ApiExtraModels(ResponseApi, ResultPointRegister)
+  @ApiExtraModels(ResponseApi, ResultPointRegisterMisterT)
   @ApiOkResponse({
     description: 'Retorna o resultado do registro do ponto',
     schema: {
@@ -70,7 +68,7 @@ export class MistertController {
         { $ref: getSchemaPath(ResponseApi) },
         {
           properties: {
-            data: { $ref: getSchemaPath(ResultPointRegister) },
+            data: { $ref: getSchemaPath(ResultPointRegisterMisterT) },
           },
         },
       ],

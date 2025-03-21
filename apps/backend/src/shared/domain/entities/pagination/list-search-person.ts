@@ -31,20 +31,20 @@ export class PersonPaginate {
   @ApiProperty({ example: 'Antônio' })
   name?: string = '-'
 
-  @ApiProperty({ example: '2025-01-04' })
+  @ApiProperty({ example: '21/03/2025, 11:30:31' })
   create_date?: string = '-'
 
-  @ApiProperty({ example: '2025-01-04' })
+  @ApiProperty({ example: '25/03/2025, 10:21:05' })
   modified_date?: string = '-'
 
   constructor(props: PersonPaginateProps) {
     this.id = props.id
     this.name = props.name ?? '-'
     this.create_date = props.create_date
-      ? new Date(props.create_date).toString()
+      ? new Date(props.create_date).toLocaleString()
       : '-'
     this.modified_date = props.modified_date
-      ? new Date(props.modified_date).toString()
+      ? new Date(props.modified_date).toLocaleString()
       : '-'
   }
 }
@@ -55,6 +55,13 @@ export type ListSearchPersonProps = {
 }
 
 export class ListSearchPerson {
+  constructor(props: ListSearchPersonProps) {
+    this.total = props.searchPersonResult.count
+    this.totalPages = Math.round(this.total / props.limit)
+    this.count = props.searchPersonResult.persons.length
+    this.persons = props.searchPersonResult.persons
+  }
+
   @ApiProperty({ example: 1 })
   @IsNotEmpty()
   totalPages: number
@@ -68,11 +75,4 @@ export class ListSearchPerson {
   count: number
 
   persons: PersonPaginate[]
-
-  constructor(props: ListSearchPersonProps) {
-    this.total = props.searchPersonResult.count
-    this.totalPages = Math.round(this.total / props.limit)
-    this.count = props.searchPersonResult.persons.length
-    this.persons = props.searchPersonResult.persons
-  }
 }

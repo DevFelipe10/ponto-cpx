@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty } from 'class-validator'
+import { MarcacaoMisterT } from 'src/face-recognition/domain/entities/mistert/marcacao.mistert'
 
 export enum MisterTOperations {
   GET_SETUP = 'GetSetup',
@@ -115,7 +115,27 @@ export class FormatoRel {
   PODEUSAR: string
 }
 
+export type ResultGetConfigProps = {
+  Success: boolean
+  ErrorMsg: string
+  Versao: string
+  URL_Img_Logo: string
+  FormatoRel: FormatoRel
+  HasMatricula?: boolean
+  Eventos: EventoGetSetup[]
+}
+
 export class ResultGetConfig {
+  constructor(props: ResultGetConfigProps) {
+    this.Success = props.Success
+    this.ErrorMsg = props.ErrorMsg
+    this.Versao = props.Versao
+    this.URL_Img_Logo = props.URL_Img_Logo
+    this.FormatoRel = props.FormatoRel
+    this.HasMatricula = props.HasMatricula
+    this.Eventos = props.Eventos
+  }
+
   @ApiProperty({ example: true })
   Success: boolean
 
@@ -136,63 +156,6 @@ export class ResultGetConfig {
 
   @ApiProperty({ type: [EventoGetSetup] })
   Eventos: EventoGetSetup[]
-}
-
-export class ResultPointRegister {
-  @ApiProperty()
-  Success: boolean
-
-  @ApiPropertyOptional()
-  ErrorMsg: string
-}
-
-export class MarcacaoMisterT {
-  @ApiProperty()
-  @IsNotEmpty()
-  Versao: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  MATRICULA: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  DATA: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  HORA: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  FUSOHORAR: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  IDEVENTO: number
-
-  @ApiProperty()
-  @IsNotEmpty()
-  IPORIGEM: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  LATITUDE: number
-
-  @ApiProperty()
-  @IsNotEmpty()
-  LONGITUDE: number
-
-  @ApiProperty()
-  @IsNotEmpty()
-  PRECISAO: number
-
-  @ApiPropertyOptional()
-  OBSREG: string
-
-  @ApiProperty()
-  @IsNotEmpty()
-  IsFacialValid: boolean
 }
 
 export type RequestMisterT = {

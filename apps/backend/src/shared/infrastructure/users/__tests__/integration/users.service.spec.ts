@@ -2,14 +2,14 @@ import { Test, TestingModule } from '@nestjs/testing'
 import { UsersService } from '../../users.service'
 import { MistertService } from 'src/face-recognition/infrastructure/mistert/mistert.service'
 import { UserAuthDataBuilder } from 'src/shared/domain/testing/helpers/user-auth-data-builder'
-import { User } from 'src/shared/domain/entities/auth/user.auth'
+import { UserAuth } from 'src/shared/domain/entities/auth/user.auth'
 
 describe('UsersService integration tests', () => {
   let sut: UsersService
   let mistertService: MistertService
 
-  const user = new User(UserAuthDataBuilder({}))
-  const users = [user, new User(UserAuthDataBuilder({}))]
+  const user = new UserAuth(UserAuthDataBuilder({}))
+  const users = [user, new UserAuth(UserAuthDataBuilder({}))]
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -34,7 +34,7 @@ describe('UsersService integration tests', () => {
     const result = await sut.findOne(user.username, user.password)
 
     expect(result).not.toBe(undefined)
-    expect(result).toBeInstanceOf(User)
+    expect(result).toBeInstanceOf(UserAuth)
   })
 
   it('should be findOne undefined', async () => {

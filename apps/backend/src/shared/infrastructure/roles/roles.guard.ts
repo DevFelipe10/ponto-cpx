@@ -7,7 +7,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import { ROLES_KEY } from '../../domain/entities/roles/roles.decorator'
 import { Role } from '../../domain/entities/roles/role.enum'
-import { User } from 'src/shared/domain/entities/auth/user.auth'
+import { UserAuth } from 'src/shared/domain/entities/auth/user.auth'
 import { UserTokenResponseDto } from 'src/shared/domain/entities/auth/dto/user-token-reponse.dto.auth'
 
 @Injectable()

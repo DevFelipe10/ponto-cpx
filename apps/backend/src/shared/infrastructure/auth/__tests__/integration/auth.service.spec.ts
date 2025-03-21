@@ -8,8 +8,7 @@ import {
   TokenResponseDto,
   TokenResponseDtoProps,
 } from 'src/shared/domain/entities/auth/dto/token-response.dto.auth'
-import { User } from 'src/shared/domain/entities/auth/user.auth'
-import { Role } from 'src/shared/domain/entities/roles/role.enum'
+import { UserAuth } from 'src/shared/domain/entities/auth/user.auth'
 import { UserPayload } from 'src/shared/domain/entities/auth/user-payload.auth'
 import { TokenResponseDataBuilder } from 'src/shared/domain/testing/helpers/token-response-dto-data-builder'
 import { UserAuthDataBuilder } from 'src/shared/domain/testing/helpers/user-auth-data-builder'
@@ -59,7 +58,7 @@ describe('AuthService integration tests', () => {
     })
 
     it('should return a JWT token if user is found', async () => {
-      const user = new User(UserAuthDataBuilder({}))
+      const user = new UserAuth(UserAuthDataBuilder({}))
 
       const userPayload = <UserPayload>{
         sub: user.id,

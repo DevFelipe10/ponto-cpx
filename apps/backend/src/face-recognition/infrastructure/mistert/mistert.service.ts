@@ -4,13 +4,20 @@ import { catchError, firstValueFrom } from 'rxjs'
 import { EnvConfigService } from 'src/shared/infrastructure/env-config/env-config.service'
 import iconv from 'iconv-lite'
 import {
-  MarcacaoMisterT,
   MisterTOperations,
   RequestMisterT,
   ResultGetConfig,
-  ResultPointRegister,
+  ResultGetConfigProps,
 } from './interfaces'
-import { User } from 'src/shared/domain/entities/auth/user.auth'
+import {
+  UserAuth,
+  UserAuthProps,
+} from 'src/shared/domain/entities/auth/user.auth'
+import { MarcacaoMisterT } from 'src/face-recognition/domain/entities/mistert/marcacao.mistert'
+import {
+  ResultPointRegisterMisterT,
+  ResultPointRegisterMisterTProps,
+} from 'src/face-recognition/domain/entities/mistert/result-point-register.mistert'
 
 @Injectable()
 export class MistertService {
@@ -31,6 +38,16 @@ export class MistertService {
     return Buffer.from(JSON.stringify(parameterMT)).toString('base64')
   }
 
+  private convertFromBinaryToJson<R>(binaryData: string) {
+    // Converter binary para latin1 removendo � da string
+    const dataLatin1 = Buffer.from(binaryData, 'binary')
+
+    // Decode de latin1 to utf8 format
+    const dataUtf8 = iconv.decode(dataLatin1, 'latin1')
+
+    return JSON.parse(dataUtf8) as R
+  }
+
   // Chamar o endpoint de configuração do MisterT para o webponto
   async getConfig(): Promise<ResultGetConfig> {
     const { data } = await firstValueFrom(
@@ -47,30 +64,25 @@ export class MistertService {
         })
         .pipe(
           catchError(error => {
-            console.log(error.response)
-            throw 'An error happened when trying to get the webponto configuration'
+            throw new Error(
+              'An error happened when trying to get the webponto configuration',
+            )
           }),
         ),
     )
 
-    let resultMisterT: ResultGetConfig = <ResultGetConfig>{}
-
     try {
-      // Converter binary para latin1 removendo � da string
-      const dataLatin1 = Buffer.from(data, 'binary')
+      const dataJson = this.convertFromBinaryToJson<ResultGetConfigProps>(data)
 
-      // Decode de latin1 to utf8 format
-      const dataUtf8 = iconv.decode(dataLatin1, 'latin1')
-
-      resultMisterT = JSON.parse(dataUtf8) as ResultGetConfig
+      return new ResultGetConfig(dataJson)
     } catch (e) {
-      throw 'An error happened when trying to parse the JSON - is not valid JSON - getConfigMisterT()'
+      throw new Error(
+        'An error happened when trying to parse the JSON - is not valid JSON - getConfigMisterT()',
+      )
     }
-
-    return resultMisterT
   }
 
-  async getUsersApi(): Promise<User[]> {
+  async getUsersApi(): Promise<UserAuth[]> {
     const { data } = await firstValueFrom(
       this.httpService
         .get<string>(`${this.envConfigService.getMisterTBaseUrl()}`, {
@@ -84,33 +96,25 @@ export class MistertService {
         })
         .pipe(
           catchError(error => {
-            console.log(error)
-            console.log(error.response)
-            throw 'An error happened when trying to getUsersApi()'
+            throw new Error('An error happened when trying to getUsersApi()')
           }),
         ),
     )
 
-    let resultMisterT: User[] = []
-
     try {
-      // Converter binary para latin1 removendo � da string
-      const dataLatin1 = Buffer.from(data, 'binary')
+      const dataJson = this.convertFromBinaryToJson<UserAuthProps[]>(data)
 
-      // Decode de latin1 to utf8 format
-      const dataUtf8 = iconv.decode(dataLatin1, 'latin1')
-
-      resultMisterT = JSON.parse(dataUtf8) as User[]
+      return dataJson.map(value => new UserAuth(value))
     } catch (e) {
-      throw 'An error happened when trying to parse the JSON - is not valid JSON - getUsersApi()'
+      throw new Error(
+        'An error happened when trying to parse the JSON - is not valid JSON - getUsersApi()',
+      )
     }
-
-    return resultMisterT
   }
 
   async pointRegisterMisterT(
     marcacao: MarcacaoMisterT,
-  ): Promise<ResultPointRegister> {
+  ): Promise<ResultPointRegisterMisterT> {
     const { data } = await firstValueFrom(
       this.httpService
         .get<string>(`${this.envConfigService.getMisterTBaseUrl()}`, {
@@ -125,26 +129,20 @@ export class MistertService {
         })
         .pipe(
           catchError(error => {
-            console.log(error.response)
-            throw 'An error happened when trying to register point'
+            throw new Error('An error happened when trying to register point')
           }),
         ),
     )
 
-    let resultMisterT: ResultPointRegister = <ResultPointRegister>{}
-
     try {
-      // Converter binary para latin1 removendo � da string
-      const dataLatin1 = Buffer.from(data, 'binary')
+      const dataJson =
+        this.convertFromBinaryToJson<ResultPointRegisterMisterTProps>(data)
 
-      // Decode de latin1 to utf8 format
-      const dataUtf8 = iconv.decode(dataLatin1, 'latin1')
-
-      resultMisterT = JSON.parse(dataUtf8) as ResultPointRegister
+      return new ResultPointRegisterMisterT(dataJson)
     } catch (e) {
-      throw 'An error happened when trying to parse the JSON - is not valid JSON - pointRegisterMisterT'
+      throw new Error(
+        'An error happened when trying to parse the JSON - is not valid JSON - pointRegisterMisterT',
+      )
     }
-
-    return resultMisterT
   }
 }
