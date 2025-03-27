@@ -92,13 +92,13 @@ export class OpencvController {
         }
       }
 
-      return res.status(HttpStatus.CREATED).send(<ResponseApi>{
+      return res.status(HttpStatus.OK).send(<ResponseApi>{
         message: 'Face authenticated successfully',
         data: {
           confidence: searchResult[0].score,
           userid: searchResult[0].name,
         },
-        status: HttpStatus.CREATED,
+        status: HttpStatus.OK,
       })
     } catch (error) {
       return res.status(HttpStatus.BAD_REQUEST).send(<ResponseApi>{
