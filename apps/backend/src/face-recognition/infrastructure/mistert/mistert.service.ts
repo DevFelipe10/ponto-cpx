@@ -18,6 +18,10 @@ import {
   ResultPointRegisterMisterT,
   ResultPointRegisterMisterTProps,
 } from 'src/face-recognition/domain/entities/mistert/result-point-register.mistert'
+import {
+  PontoGeolocation,
+  PontoGeolocationProps,
+} from 'src/face-recognition/domain/entities/mistert/ponto-geolocation.mistert'
 
 @Injectable()
 export class MistertService {
@@ -142,6 +146,38 @@ export class MistertService {
     } catch (e) {
       throw new Error(
         'An error happened when trying to parse the JSON - is not valid JSON - pointRegisterMisterT',
+      )
+    }
+  }
+
+  async getPointGeolocation(): Promise<PontoGeolocation[]> {
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<string>(`${this.envConfigService.getMisterTBaseUrl()}`, {
+          responseType: 'arraybuffer',
+          responseEncoding: 'utf-8',
+          params: {
+            SS: 'x2t2p2c7u6d2v5d4g5x6h5v2d4e5d6',
+            NH: '-1',
+          },
+        })
+        .pipe(
+          catchError(error => {
+            throw new Error(
+              'An error happened when trying to get point geolocation',
+            )
+          }),
+        ),
+    )
+
+    try {
+      const dataJson =
+        this.convertFromBinaryToJson<PontoGeolocationProps[]>(data)
+
+      return dataJson.map(value => new PontoGeolocation(value))
+    } catch (e) {
+      throw new Error(
+        'An error happened when trying to parse the JSON - is not valid JSON - getPointGeolocation',
       )
     }
   }

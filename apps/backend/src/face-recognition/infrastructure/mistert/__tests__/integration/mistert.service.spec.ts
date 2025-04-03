@@ -15,6 +15,7 @@ import {
   ResultPointRegisterMisterTProps,
 } from 'src/face-recognition/domain/entities/mistert/result-point-register.mistert'
 import { ResultPointRegisterMisterTDataBuilder } from 'src/face-recognition/domain/testing/helpers/result-point-register-mistert-data-builder'
+import { PontoGeolocation } from 'src/face-recognition/domain/entities/mistert/ponto-geolocation.mistert'
 
 describe('MistertService integration tests', () => {
   let sut: MistertService
@@ -138,6 +139,39 @@ describe('MistertService integration tests', () => {
       await expect(sut.pointRegisterMisterT(marcacaoMisterT)).rejects.toThrow(
         new Error(
           'An error happened when trying to parse the JSON - is not valid JSON - pointRegisterMisterT',
+        ),
+      )
+    })
+  })
+
+  describe('getPointGeolocation function', () => {
+    const marcacaoMisterT = new MarcacaoMisterT(MarcacaoMisterTDataBuilder({}))
+
+    it('should return a PontoGeolocation array', async () => {
+      const result = await sut.getPointGeolocation()
+
+      expect(result.every(item => item instanceof PontoGeolocation)).toBe(true)
+    })
+
+    it('should return an error from request', async () => {
+      jest.spyOn(httpService, 'get').mockRestore()
+      jest
+        .spyOn(envConfigService, 'getMisterTBaseUrl')
+        .mockReturnValue(faker.internet.url())
+
+      await expect(sut.getPointGeolocation()).rejects.toThrow(
+        new Error('An error happened when trying to get point geolocation'),
+      )
+    })
+
+    it('should return an error from conversion parse the JSON', async () => {
+      jest
+        .spyOn(httpService, 'get')
+        .mockReturnValue(of({ data: faker.word.words() } as AxiosResponse))
+
+      await expect(sut.getPointGeolocation()).rejects.toThrow(
+        new Error(
+          'An error happened when trying to parse the JSON - is not valid JSON - getPointGeolocation',
         ),
       )
     })

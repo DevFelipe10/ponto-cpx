@@ -13,10 +13,15 @@ import {
 } from '@nestjs/swagger'
 import { MarcacaoMisterT } from 'src/face-recognition/domain/entities/mistert/marcacao.mistert'
 import { ResultPointRegisterMisterT } from 'src/face-recognition/domain/entities/mistert/result-point-register.mistert'
+import { GeofenceService } from 'src/shared/infrastructure/geofence/geofence.service'
+import { MarcacaoMistertDto } from 'src/face-recognition/domain/entities/mistert/marcacao.mistert.dto'
 
 @Controller('mistert')
 export class MistertController {
-  constructor(private readonly mistertService: MistertService) {}
+  constructor(
+    private readonly mistertService: MistertService,
+    private readonly geofenceService: GeofenceService,
+  ) {}
 
   @ApiExtraModels(ResponseApi, ResultGetConfig)
   @ApiOkResponse({
@@ -77,10 +82,25 @@ export class MistertController {
   @Post('pointregister')
   @Roles(Role.REGISTRO_PONTO)
   async pointRegisterMisterT(
-    @Body() marcacao: MarcacaoMisterT,
+    @Body() marcacaoDto: MarcacaoMistertDto,
     @Res() res: FastifyReply,
   ) {
     try {
+      // converter o DTO para a classe
+      const marcacao = MarcacaoMisterT.fromDto(marcacaoDto)
+
+      // verificar a localização do usuário
+      const { LATITUDE, LONGITUDE } = marcacao
+
+      const isInsideGeofence = this.geofenceService.isInsideCircle(
+        LATITUDE,
+        LONGITUDE,
+      )
+
+      if (!isInsideGeofence) {
+        return 'A sua localização não está dentro da área definida para realizar o registro de ponto. Tente novamente!'
+      }
+
       // envio do JSON para registrar o ponto
       const result = await this.mistertService.pointRegisterMisterT(marcacao)
 

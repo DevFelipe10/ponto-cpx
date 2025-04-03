@@ -11,6 +11,7 @@ import { UsersModule } from './shared/infrastructure/users/users.module'
 import { OpencvModule } from './face-recognition/infrastructure/opencv/opencv.module'
 import { BaseHttpModule } from './shared/infrastructure/base-http/base-http.module'
 import { RolesModule } from './shared/infrastructure/roles/roles.module'
+import { GeofenceModule } from './shared/infrastructure/geofence/geofence.module'
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RolesModule } from './shared/infrastructure/roles/roles.module'
     OpencvModule,
     BaseHttpModule,
     RolesModule,
+    GeofenceModule,
   ],
 })
 export class AppModule {}
