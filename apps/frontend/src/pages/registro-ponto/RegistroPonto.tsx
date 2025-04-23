@@ -29,13 +29,13 @@ import {
 } from '@/hooks/use-mistert'
 import { CardRegistroPonto } from '@/components/card-registro-ponto/card-registro-ponto'
 import { useGeolocation } from '@/hooks/use-geolocation'
-import { HttpStatusCode } from 'axios'
+import { HttpStatusCode, isAxiosError } from 'axios'
 import {
   FaceAuthenticateResponse,
   useFaceAuthentication,
 } from '@/hooks/use-face-authentication'
 import { Skeleton } from '@/components/ui/skeleton'
-import { toast, Toaster } from 'sonner'
+import { Toaster } from 'sonner'
 import { useConfig } from '@/hooks/use-config'
 import { Loader2 } from 'lucide-react'
 
@@ -47,12 +47,16 @@ const RegistroPonto: React.FC = () => {
     getConfgiMisterT,
     getTokenRegistroPonto,
     loading,
+    setLoading,
     progress,
     configMisterT,
   } = useConfig()
   const { pointRegisterMisterT } = useMisterT()
   const { latitude, longitude, precisao, errorGeolocation, configGeolocation } =
     useGeolocation()
+
+  const [tokenError, setTokenError] = useState<string>()
+  const [configMistertError, setConfigMistertError] = useState<string>()
 
   const [submitted, setSubmitted] = useState<boolean>(false)
   const [loadingCaptureFace, setLoadingCaptureFace] = useState<boolean>(false)
@@ -101,8 +105,6 @@ const RegistroPonto: React.FC = () => {
           setCameraPermission(permissionStatus.state)
         }
       } catch (error) {
-        toast('Permita o acesso a câmera')
-
         console.error('Erro ao verificar permissão da câmera:', error)
       }
     }
@@ -111,27 +113,46 @@ const RegistroPonto: React.FC = () => {
       setLoadingCheckCamera(false)
 
       checkCameraPermission()
+
+      configGeolocation()
     }
 
     if (loadingToken) {
-      setLoadingToken(false)
+      try {
+        setLoading(true)
 
-      getTokenRegistroPonto().then(() => {
-        getConfgiMisterT().then(config => {
-          if (config === undefined) {
-            toast('Não autenticado, tente novamente mais tarde', {
-              duration: 3000,
-              position: 'bottom-right',
-            })
+        setLoadingToken(false)
+
+        getTokenRegistroPonto().then(a => {
+          if (isAxiosError(a)) {
+            setLoading(false)
+            return setTokenError(a.message)
           }
+
+          getConfgiMisterT().then(
+            config => {
+              if (config === undefined) {
+                setLoading(false)
+                setConfigMistertError(
+                  'Não autenticado, tente novamente mais tarde',
+                )
+              }
+            },
+            e => {
+              setLoading(false)
+              setConfigMistertError(e.message)
+            },
+          )
         })
-      })
-      configGeolocation()
+      } catch {
+        setLoading(false)
+      }
     }
   }, [
     configGeolocation,
     getConfgiMisterT,
     getTokenRegistroPonto,
+    setLoading,
     loadingToken,
     loadingCheckCamera,
   ])
@@ -204,17 +225,15 @@ const RegistroPonto: React.FC = () => {
       console.log(formData.evento)
 
       const bodyMarcacao: MarcacaoMisterT = {
-        Versao: '1.0',
         MATRICULA: formData.matricula,
-        DATA: dateMarcacao.toLocaleDateString(),
-        HORA: dateMarcacao.toLocaleTimeString(),
+        DATA: dateMarcacao.toLocaleDateString('pt-BR'),
+        HORA: dateMarcacao.toLocaleTimeString('pt-BR'),
         FUSOHORAR: `${(dateMarcacao.getTimezoneOffset() / -60).toString()}:00`,
         IDEVENTO: Number.parseInt(formData.evento),
         IPORIGEM: ip,
         LATITUDE: latitude,
         LONGITUDE: longitude,
         PRECISAO: precisao,
-        OBSREG: '',
         IsFacialValid: resFaceAuthenticate.status === HttpStatusCode.Ok, // Verificação facial deu certo httpStatusCode = 200
       }
 
@@ -336,39 +355,6 @@ const RegistroPonto: React.FC = () => {
     )
   }
 
-  // function Clock() {
-  //   // const dataSplited = configMisterT?.data.split("/");
-  //   // const horaSplited = configMisterT?.hora.split(":");
-
-  //   // console.log(dataSplited);
-  //   // console.log(horaSplited);
-
-  //   // const serverDate = new Date(
-  //   //   Number.parseInt(dataSplited[2]),
-  //   //   Number.parseInt((Number.parseInt(dataSplited[1]) - 1).toString()),
-  //   //   Number.parseInt(dataSplited[0]),
-  //   //   Number.parseInt(horaSplited[0]),
-  //   //   Number.parseInt(horaSplited[1]),
-  //   //   Number.parseInt(horaSplited[2])
-  //   // );
-
-  //   // const dateNow = new Date();
-
-  //   // // setDataPonto(new Date());
-
-  //   // console.log(dateNow.toLocaleDateString());
-  //   // console.log(dateNow.toLocaleTimeString());
-
-  //   // console.log(`serverDate: ${serverDate}`);
-  //   // console.log(`dateNow: ${dateNow}`);
-
-  //   return (
-  //     <div>
-  //       <h4>{dataPonto.toLocaleTimeString()}</h4>
-  //     </div>
-  //   );
-  // }
-
   return (
     // <Layout>
     //   <div className={styles.divBody}>
@@ -382,25 +368,62 @@ const RegistroPonto: React.FC = () => {
         )}
       </div>
       {/* Card */}
-      {configMisterT === undefined ||
-      loading ||
-      errorGeolocation != undefined ||
-      cameraPermission !== 'granted' ||
-      latitude === 0.0 ? (
+      {cameraPermission !== 'granted' ? (
+        <CardRegistroPonto
+          cardContent={
+            <div className="place-items-center">
+              <h2>Permita o acesso a câmera</h2>
+            </div>
+          }
+        />
+      ) : errorGeolocation !== undefined || latitude === 0.0 ? (
+        <CardRegistroPonto
+          cardContent={
+            <div className="place-items-center">
+              <h2>Permita o acesso a geolocalização</h2>
+            </div>
+          }
+        />
+      ) : loading ? (
         <CardRegistroPonto cardContent={<LoadingRegistroPonto />} />
+      ) : tokenError !== undefined ? (
+        <CardRegistroPonto
+          cardContent={
+            <div className="place-items-center">
+              <h2>
+                Erro ao obter o token da página, tente novamente mais tarde
+              </h2>
+              <h2 className="mb-5">Erro: {tokenError}</h2>
+              <Button
+                onClick={() => {
+                  window.location.reload()
+                }}
+              >
+                Atualizar
+              </Button>
+            </div>
+          }
+        />
+      ) : configMisterT === undefined ? (
+        <CardRegistroPonto
+          cardContent={
+            <div className="place-items-center">
+              <h2>
+                Erro ao obter as configurações da página, tente novamente mais
+                tarde
+              </h2>
+              <h2 className="mb-5">Erro: {configMistertError}</h2>
+              <Button
+                onClick={() => {
+                  window.location.reload()
+                }}
+              >
+                Atualizar
+              </Button>
+            </div>
+          }
+        />
       ) : (
-        // ? (
-        //   <CardRegistroPonto
-        //     cardTitle="Localização indisponível"
-        //     cardContent={
-        //       <h2>
-        //         {errorGeolocation === undefined
-        //           ? "Habilite a localização no navegador"
-        //           : errorGeolocation.message}
-        //       </h2>
-        //     }
-        //   />
-        // ) :
         <CardRegistroPonto
           cardTitle="Registre o seu ponto"
           cardContent={<ContentRegistroPonto />}
@@ -417,7 +440,7 @@ const RegistroPonto: React.FC = () => {
                   </DialogHeader>
                   <div className="py-4 text-center">
                     {resultFaceAuthenticate?.status === HttpStatusCode.Ok &&
-                    resultPointRegister?.data?.success === true ? (
+                    resultPointRegister?.data?.Success === true ? (
                       <h2>Registro de ponto realizado com sucesso!</h2>
                     ) : resultPointRegister?.message !== undefined ? (
                       <div>

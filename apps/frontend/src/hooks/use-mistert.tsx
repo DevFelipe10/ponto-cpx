@@ -58,10 +58,12 @@ export type ResultGetConfig = {
   Eventos: EventoGetSetup[]
 }
 
-export type ResultPointRegister = { success: boolean; errormsg: string }
+export type ResultPointRegister = {
+  Success: boolean
+  ErrorMsg: string
+}
 
 export type MarcacaoMisterT = {
-  Versao: string
   MATRICULA?: string
   DATA: string
   HORA: string
@@ -71,7 +73,6 @@ export type MarcacaoMisterT = {
   LATITUDE: number
   LONGITUDE: number
   PRECISAO: number
-  OBSREG: string
   IsFacialValid: boolean
 }
 

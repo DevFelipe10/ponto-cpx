@@ -10,14 +10,18 @@ export const useConfig = () => {
   const { getToken } = useApiAuth()
 
   const [progress, setProgress] = useState<number>(10)
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(true)
   const [configMisterT, setConfigMisterT] = useState<
     ResultGetConfig | undefined
   >(undefined)
 
-  const getTokenRegistroPonto = async () =>
-    await getToken(env.VITE_API_USERNAME, env.VITE_API_PASSWORD)
-
+  const getTokenRegistroPonto = async () => {
+    try {
+      return await getToken(env.VITE_API_USERNAME, env.VITE_API_PASSWORD)
+    } catch (error) {
+      return error as AxiosError
+    }
+  }
   const getConfgiMisterT = async () => {
     // Set loading como true
     setLoading(true)
@@ -52,6 +56,7 @@ export const useConfig = () => {
     getConfgiMisterT,
     progress,
     loading,
+    setLoading,
     configMisterT,
   }
 }

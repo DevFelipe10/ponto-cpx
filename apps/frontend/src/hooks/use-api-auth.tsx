@@ -56,13 +56,6 @@ export const useApiAuth = () => {
       .then(res => {
         return res
       })
-      .catch((err: AxiosError<TokenResponse>) => {
-        console.log(err)
-        return err.response!
-      })
-
-    // console.log(env.VITE_BASE_URL_API.replace('/api', ''))
-    // document.cookie = `token=${data.token}; expires=Fri, 31 Dec 2025 23:59:59 GMT; path=/;}`
 
     return data
   }
