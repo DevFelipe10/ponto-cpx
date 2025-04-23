@@ -9,7 +9,6 @@ export const useConfig = () => {
 
   const { getToken } = useApiAuth()
 
-  const [progress, setProgress] = useState<number>(10)
   const [loading, setLoading] = useState<boolean>(true)
   const [configMisterT, setConfigMisterT] = useState<
     ResultGetConfig | undefined
@@ -28,17 +27,7 @@ export const useConfig = () => {
 
     // Faz o request
     const { data } = await api
-      .get<ResponseApi<ResultGetConfig>>(`${env.VITE_API_URL_MISTERT}/config`, {
-        onDownloadProgress: progressEvent => {
-          if (progressEvent.total != undefined) {
-            const percentCompleted = Math.round(
-              (progressEvent.loaded * 100) / progressEvent.total,
-            )
-
-            setProgress(percentCompleted)
-          }
-        },
-      })
+      .get<ResponseApi<ResultGetConfig>>(`${env.VITE_API_URL_MISTERT}/config`)
       .then(res => res.data)
       .catch(
         (err: AxiosError<ResponseApi<ResultGetConfig>>) => err.response!.data,
@@ -54,7 +43,6 @@ export const useConfig = () => {
   return {
     getTokenRegistroPonto,
     getConfgiMisterT,
-    progress,
     loading,
     setLoading,
     configMisterT,

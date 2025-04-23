@@ -48,7 +48,6 @@ const RegistroPonto: React.FC = () => {
     getTokenRegistroPonto,
     loading,
     setLoading,
-    progress,
     configMisterT,
   } = useConfig()
   const { pointRegisterMisterT } = useMisterT()
@@ -57,6 +56,7 @@ const RegistroPonto: React.FC = () => {
 
   const [tokenError, setTokenError] = useState<string>()
   const [configMistertError, setConfigMistertError] = useState<string>()
+  const [progress, setProgress] = useState<number>(10)
 
   const [submitted, setSubmitted] = useState<boolean>(false)
   const [loadingCaptureFace, setLoadingCaptureFace] = useState<boolean>(false)
@@ -80,6 +80,12 @@ const RegistroPonto: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
+    console.log(progress)
+    const timer = setTimeout(
+      () => (progress < 100 ? setProgress(progress + 10) : setProgress(100)),
+      500,
+    )
+
     const checkCameraPermission = async () => {
       try {
         // Chamar a permissão de câmera
@@ -148,11 +154,14 @@ const RegistroPonto: React.FC = () => {
         setLoading(false)
       }
     }
+
+    return () => clearTimeout(timer)
   }, [
     configGeolocation,
     getConfgiMisterT,
     getTokenRegistroPonto,
     setLoading,
+    progress,
     loadingToken,
     loadingCheckCamera,
   ])
